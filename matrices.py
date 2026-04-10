@@ -6,14 +6,24 @@ from copy import deepcopy
 class Matrix:
     values: list[list[int]] = None
     _squareSize: int = None
+    _identity: bool = False
 
     def __post_init__(self):
         if self.values == None:
             if self._squareSize != None:
-                self.values = [
-                    [i * self._squareSize + j for j in range(1, self._squareSize + 1)]
-                    for i in range(self._squareSize)
-                ]
+                if self._identity:
+                    self.values = [
+                        [1 if i == j else 0 for j in range(self._squareSize)]
+                        for i in range(self._squareSize)
+                    ]
+                else:
+                    self.values = [
+                        [
+                            i * self._squareSize + j
+                            for j in range(1, self._squareSize + 1)
+                        ]
+                        for i in range(self._squareSize)
+                    ]
             else:
                 raise ValueError("La matriz debe tener al menos una fila.")
 
