@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from copy import deepcopy
 
 
 @dataclass
@@ -60,6 +61,39 @@ class Matrix:
         if self.numRows != other.numRows or self.numCols != other.numCols:
             raise ValueError("Las matrices restadas deben ser del mismo tamaño.")
         return self + (other * -1)
+
+    def __mul__(self, other):
+        if isinstance(other, int | float):
+            newValues = [
+                [self.values[i][j] * other for j in range(self.numCols)]
+                for i in range(self.numRows)
+            ]
+        elif isinstance(other, Matrix):
+            if self.numCols != other.numRows:
+                raise ValueError(
+                    "Las matrices multiplicadas deben ser de tamaños m * n y n * p."
+                )
+            newValues = [
+                [
+                    sum(
+                        [
+                            self.values[i][k] * other.getColumn(j)[k]
+                            for k in range(self.numCols)
+                        ]
+                    )
+                    for j in range(other.numCols)
+                ]
+                for i in range(self.numRows)
+            ]
+        return Matrix(newValues)
+
+    def __pow__(self, other):
+        if not isinstance(other, int):
+            raise TypeError('La potencia debe ser de tipo "int".')
+        matrixCopy, newMatrix = deepcopy(self), deepcopy(self)
+        for _ in range(other - 1):
+            newMatrix *= matrixCopy
+        return newMatrix
 
     def __str__(self):
         columnStrWidths = [
