@@ -3,15 +3,29 @@ from dataclasses import dataclass
 
 @dataclass
 class Matrix:
-    values: list[list[int]]
+    values: list[list[int]] = None
+    _squareSize: int = None
 
     def __post_init__(self):
+        if self.values == None:
+            if self._squareSize != None:
+                self.values = [
+                    [i * self._squareSize + j for j in range(1, self._squareSize + 1)]
+                    for i in range(self._squareSize)
+                ]
+            else:
+                raise ValueError("La matriz debe tener al menos una fila.")
+
         self.numRows = len(self.values)
         self.numCols = len(self.values[0])
-        colsAreSameSize = all(len(row) == self.numCols for row in self.values)
+
+        if self.numRows == 1 and self.numCols == 1:
+            raise ValueError("La matriz no debe ser un único número.")
+
+        areColsSameSize = all(len(row) == self.numCols for row in self.values)
         hasEmptyCols = any(len(row) == 0 for row in self.values)
 
-        if not colsAreSameSize:
+        if not areColsSameSize:
             raise ValueError(
                 "La matriz debe tener el mismo número de columnas en cada fila."
             )
@@ -25,7 +39,7 @@ class Matrix:
 
     def __setitem__(self, idx, value):
         if not isinstance(idx, tuple):
-            raise TypeError('Índice debe de ser de tipo "tuple".')
+            raise TypeError('Índice debe ser de tipo "tuple".')
         if idx[0] < 0 or idx[0] >= self.numRows or idx[1] < 0 or idx[1] >= self.numCols:
             raise IndexError("Índice fuera de rango.")
         if isinstance(value, int | float):
@@ -37,7 +51,9 @@ class Matrix:
         columnStrWidths = [
             max(len(str(x)) for x in self.getColumn(i)) for i in range(self.numRows)
         ]
-        maxColWidth = max(*columnStrWidths)
+        maxColWidth = (
+            columnStrWidths[0] if len(columnStrWidths) == 1 else max(*columnStrWidths)
+        )
         rowToStr = lambda rowIdx: " ".join(
             map(lambda x: str(x).rjust(maxColWidth), self.values[rowIdx])
         )
