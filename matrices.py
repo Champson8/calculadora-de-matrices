@@ -47,6 +47,20 @@ class Matrix:
         else:
             raise TypeError('El valor asignado debe ser de tipo "int" o "float".')
 
+    def __add__(self, other):
+        if self.numRows != other.numRows or self.numCols != other.numCols:
+            raise ValueError("Las matrices sumadas deben ser del mismo tamaño.")
+        newValues = [
+            [self.values[i][j] + other.values[i][j] for j in range(self.numCols)]
+            for i in range(self.numRows)
+        ]
+        return Matrix(newValues)
+
+    def __sub__(self, other):
+        if self.numRows != other.numRows or self.numCols != other.numCols:
+            raise ValueError("Las matrices restadas deben ser del mismo tamaño.")
+        return self + (other * -1)
+
     def __str__(self):
         columnStrWidths = [
             max(len(str(x)) for x in self.getColumn(i)) for i in range(self.numRows)
@@ -71,3 +85,10 @@ class Matrix:
         if idx < 0 or idx >= self.numCols:
             raise IndexError("Índice fuera de rango.")
         return [self.values[i][idx] for i in range(self.numRows)]
+
+    def transpose(self):
+        newValues = [
+            [self.values[j][i] for j in range(self.numCols)]
+            for i in range(self.numRows)
+        ]
+        return Matrix(newValues)
