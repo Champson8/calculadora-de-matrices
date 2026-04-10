@@ -32,3 +32,26 @@ class Matrix:
             self.values[idx[0]][idx[1]] = value
         else:
             raise TypeError('El valor asignado debe ser de tipo "int" o "float".')
+
+    def __str__(self):
+        columnStrWidths = [
+            max(len(str(x)) for x in self.getColumn(i)) for i in range(self.numRows)
+        ]
+        maxColWidth = max(*columnStrWidths)
+        rowToStr = lambda rowIdx: " ".join(
+            map(lambda x: str(x).rjust(maxColWidth), self.values[rowIdx])
+        )
+        if self.numRows == 1:
+            drawing = f"[ {rowToStr(0)} ]"
+        else:
+            drawing = [f"┌ {rowToStr(0)} ┐"]
+            for i in range(1, self.numRows - 1):
+                drawing.append(f"│ {rowToStr(i)} │")
+            drawing.append(f"└ {rowToStr(self.numRows - 1)} ┘")
+            drawing = "\n".join(drawing)
+        return drawing
+
+    def getColumn(self, idx):
+        if idx < 0 or idx >= self.numCols:
+            raise IndexError("Índice fuera de rango.")
+        return [self.values[i][idx] for i in range(self.numRows)]
