@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from copy import deepcopy
 from random import randint
-from time import perf_counter
+from collections import Counter
 
 
 @dataclass
@@ -43,12 +43,31 @@ class Matrix:
         return cls(values)
 
     @property
+    def columns(self):
+        return [
+            [self.values[i][j] for i in range(self.numRows)]
+            for j in range(self.numCols)
+        ]
+
+    @property
     def determinant(self):
         if self.numRows != self.numCols:
             raise ValueError("La matriz debe ser cuadrada para poseer determinante.")
         if self.numRows == 2:
             return self[0, 0] * self[1, 1] - self[0, 1] * self[1, 0]
         else:
+            isDetZero = any(
+                v == [0] * self.numRows
+                for v in self.values
+                + list(self.columns[i] for i in range(self.numRows))
+            )
+            isDetZero = isDetZero or (
+                len(Counter(map(tuple, self.values)))
+                + len(Counter(map(tuple, self.columns)))
+                != self.numRows * 2
+            )
+            if isDetZero:
+                return 0
             if self.numRows == 3:
                 return (
                     self[0, 0] * self[1, 1] * self[2, 2]
@@ -115,7 +134,7 @@ class Matrix:
                 [
                     sum(
                         [
-                            self.values[i][k] * other.getColumn(j)[k]
+                            self.values[i][k] * other.columns[j][k]
                             for k in range(self.numCols)
                         ]
                     )
@@ -146,7 +165,7 @@ class Matrix:
 
     def __str__(self):
         columnStrWidths = [
-            max(len(str(x)) for x in self.getColumn(i)) for i in range(self.numRows)
+            max(len(str(x)) for x in self.columns[i]) for i in range(self.numRows)
         ]
         maxColWidth = (
             columnStrWidths[0] if len(columnStrWidths) == 1 else max(*columnStrWidths)
@@ -163,11 +182,6 @@ class Matrix:
             drawing.append(f"└ {rowToStr(self.numRows - 1)} ┘")
             drawing = "\n".join(drawing)
         return drawing
-
-    def getColumn(self, idx):
-        if idx < 0 or idx >= self.numCols:
-            raise IndexError("Índice fuera de rango.")
-        return [self.values[i][idx] for i in range(self.numRows)]
 
     def transpose(self):
         newValues = [
