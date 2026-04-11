@@ -34,9 +34,21 @@ class Matrix:
         return cls(values)
 
     def __getitem__(self, idx):
-        if idx < 0 or idx >= self.numRows:
-            raise IndexError("Índice fuera de rango.")
-        return self.values[idx]
+        if isinstance(idx, int):
+            if idx < 0 or idx >= self.numRows:
+                raise IndexError("Índice fuera de rango.")
+            return self.values[idx]
+        elif isinstance(idx, tuple):
+            if (
+                idx[0] < 0
+                or idx[0] >= self.numRows
+                or idx[1] < 0
+                or idx[1] >= self.numCols
+            ):
+                raise IndexError("Índice fuera de rango.")
+            return self.values[idx[0]][idx[1]]
+        else:
+            raise TypeError('Índice debe ser de tipo "int" o "tuple".')
 
     def __setitem__(self, idx, value):
         if not isinstance(idx, tuple):
@@ -87,12 +99,23 @@ class Matrix:
             ]
         return Matrix(newValues)
 
-    def __pow__(self, other):
-        if not isinstance(other, int):
+    def __pow__(self, value):
+        if self.numRows != self.numCols:
+            raise ValueError("La matriz debe ser de tamaño n * n.")
+        if not isinstance(value, int):
             raise TypeError('La potencia debe ser de tipo "int".')
-        matrixCopy, newMatrix = deepcopy(self), deepcopy(self)
-        for _ in range(other - 1):
-            newMatrix *= matrixCopy
+        if value == 0:
+            newMatrix = Matrix.identity(self.numRows)
+        elif value == -1:
+            pass  # TODO: add .invert() method
+        elif value < -1:
+            raise ValueError(
+                "La matriz debe ser elevada a una potencia mayor o igual que -1."
+            )
+        else:
+            matrixCopy, newMatrix = deepcopy(self), deepcopy(self)
+            for _ in range(value - 1):
+                newMatrix *= matrixCopy
         return newMatrix
 
     def __str__(self):
@@ -126,9 +149,3 @@ class Matrix:
             for i in range(self.numRows)
         ]
         return Matrix(newValues)
-
-
-a = Matrix.identity(5)
-b = Matrix.sequential(4)
-print(a)
-print(b)
