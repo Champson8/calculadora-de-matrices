@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 from copy import deepcopy
+from random import randint
+from time import perf_counter
 
 
 @dataclass
@@ -32,6 +34,30 @@ class Matrix:
     def sequential(cls, size):
         values = [[i * size + j for j in range(1, size + 1)] for i in range(size)]
         return cls(values)
+
+    @classmethod
+    def random(cls, size, maxValue=9):
+        values = [
+            [randint(-maxValue, maxValue) for _ in range(size)] for _ in range(size)
+        ]
+        return cls(values)
+
+    @property
+    def determinant(self):
+        if self.numRows != self.numCols:
+            raise ValueError("La matriz debe ser cuadrada para poseer determinante.")
+        if self.numRows == 2:
+            return self[0, 0] * self[1, 1] - self[0, 1] * self[1, 0]
+        else:
+            if self.numRows == 3:
+                return (
+                    self[0, 0] * self[1, 1] * self[2, 2]
+                    + self[0, 1] * self[1, 2] * self[2, 0]
+                    + self[0, 2] * self[1, 0] * self[2, 1]
+                    - self[0, 2] * self[1, 1] * self[2, 0]
+                    - self[0, 1] * self[1, 0] * self[2, 2]
+                    - self[0, 0] * self[1, 2] * self[2, 1]
+                )
 
     def __getitem__(self, idx):
         if isinstance(idx, int):
