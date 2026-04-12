@@ -6,17 +6,17 @@ from collections import Counter
 
 @dataclass
 class Matrix:
-    values: list[list[int]]
+    rows: list[list[int]]
 
     def __post_init__(self):
-        self.numRows = len(self.values)
-        self.numCols = len(self.values[0])
+        self.numRows = len(self.rows)
+        self.numCols = len(self.rows[0])
 
         if self.numRows == 1 and self.numCols == 1:
             raise ValueError("La matriz no debe ser un único número.")
 
-        areColsSameSize = all(len(row) == self.numCols for row in self.values)
-        hasEmptyCols = any(len(row) == 0 for row in self.values)
+        areColsSameSize = all(len(row) == self.numCols for row in self.rows)
+        hasEmptyCols = any(len(row) == 0 for row in self.rows)
 
         if not areColsSameSize:
             raise ValueError(
@@ -27,26 +27,30 @@ class Matrix:
 
     @classmethod
     def identity(cls, size):
-        values = [[1 if i == j else 0 for j in range(size)] for i in range(size)]
-        return cls(values)
+        rows = [[1 if i == j else 0 for j in range(size)] for i in range(size)]
+        return cls(rows)
+
+    @classmethod
+    def zero(cls, size):
+        rows = [[0 for _ in range(size)] for _ in range(size)]
+        return cls(rows)
 
     @classmethod
     def sequential(cls, size):
-        values = [[i * size + j for j in range(1, size + 1)] for i in range(size)]
-        return cls(values)
+        rows = [[i * size + j for j in range(1, size + 1)] for i in range(size)]
+        return cls(rows)
 
     @classmethod
     def random(cls, size, maxValue=9):
-        values = [
+        rows = [
             [randint(-maxValue, maxValue) for _ in range(size)] for _ in range(size)
         ]
-        return cls(values)
+        return cls(rows)
 
     @property
     def columns(self):
         return [
-            [self.values[i][j] for i in range(self.numRows)]
-            for j in range(self.numCols)
+            [self.rows[i][j] for i in range(self.numRows)] for j in range(self.numCols)
         ]
 
     @property
@@ -58,11 +62,10 @@ class Matrix:
         else:
             isDetZero = any(
                 v == [0] * self.numRows
-                for v in self.values
-                + list(self.columns[i] for i in range(self.numRows))
+                for v in self.rows + list(self.columns[i] for i in range(self.numRows))
             )
             isDetZero = isDetZero or (
-                len(Counter(map(tuple, self.values)))
+                len(Counter(map(tuple, self.rows)))
                 + len(Counter(map(tuple, self.columns)))
                 != self.numRows * 2
             )
@@ -73,16 +76,17 @@ class Matrix:
                     self[0, 0] * self[1, 1] * self[2, 2]
                     + self[0, 1] * self[1, 2] * self[2, 0]
                     + self[0, 2] * self[1, 0] * self[2, 1]
-                    - self[0, 2] * self[1, 1] * self[2, 0]
-                    - self[0, 1] * self[1, 0] * self[2, 2]
-                    - self[0, 0] * self[1, 2] * self[2, 1]
+                ) - (
+                    self[0, 2] * self[1, 1] * self[2, 0]
+                    + self[0, 1] * self[1, 0] * self[2, 2]
+                    + self[0, 0] * self[1, 2] * self[2, 1]
                 )
 
     def __getitem__(self, idx):
         if isinstance(idx, int):
             if idx < 0 or idx >= self.numRows:
                 raise IndexError("Índice fuera de rango.")
-            return self.values[idx]
+            return self.rows[idx]
         elif isinstance(idx, tuple):
             if (
                 idx[0] < 0
@@ -91,7 +95,7 @@ class Matrix:
                 or idx[1] >= self.numCols
             ):
                 raise IndexError("Índice fuera de rango.")
-            return self.values[idx[0]][idx[1]]
+            return self.rows[idx[0]][idx[1]]
         else:
             raise TypeError('Índice debe ser de tipo "int" o "tuple".')
 
@@ -101,18 +105,18 @@ class Matrix:
         if idx[0] < 0 or idx[0] >= self.numRows or idx[1] < 0 or idx[1] >= self.numCols:
             raise IndexError("Índice fuera de rango.")
         if isinstance(value, int | float):
-            self.values[idx[0]][idx[1]] = value
+            self.rows[idx[0]][idx[1]] = value
         else:
             raise TypeError('El valor asignado debe ser de tipo "int" o "float".')
 
     def __add__(self, other):
         if self.numRows != other.numRows or self.numCols != other.numCols:
             raise ValueError("Las matrices sumadas deben ser del mismo tamaño.")
-        newValues = [
-            [self.values[i][j] + other.values[i][j] for j in range(self.numCols)]
+        newRows = [
+            [self.rows[i][j] + other.rows[i][j] for j in range(self.numCols)]
             for i in range(self.numRows)
         ]
-        return Matrix(newValues)
+        return Matrix(newRows)
 
     def __sub__(self, other):
         if self.numRows != other.numRows or self.numCols != other.numCols:
@@ -121,8 +125,8 @@ class Matrix:
 
     def __mul__(self, other):
         if isinstance(other, int | float):
-            newValues = [
-                [self.values[i][j] * other for j in range(self.numCols)]
+            newRows = [
+                [self.rows[i][j] * other for j in range(self.numCols)]
                 for i in range(self.numRows)
             ]
         elif isinstance(other, Matrix):
@@ -130,11 +134,11 @@ class Matrix:
                 raise ValueError(
                     "Las matrices multiplicadas deben ser de tamaños m * n y n * p."
                 )
-            newValues = [
+            newRows = [
                 [
                     sum(
                         [
-                            self.values[i][k] * other.columns[j][k]
+                            self.rows[i][k] * other.columns[j][k]
                             for k in range(self.numCols)
                         ]
                     )
@@ -142,7 +146,7 @@ class Matrix:
                 ]
                 for i in range(self.numRows)
             ]
-        return Matrix(newValues)
+        return Matrix(newRows)
 
     def __pow__(self, value):
         if self.numRows != self.numCols:
@@ -171,7 +175,7 @@ class Matrix:
             columnStrWidths[0] if len(columnStrWidths) == 1 else max(*columnStrWidths)
         )
         rowToStr = lambda rowIdx: " ".join(
-            map(lambda x: str(x).rjust(maxColWidth), self.values[rowIdx])
+            map(lambda x: str(x).rjust(maxColWidth), self.rows[rowIdx])
         )
         if self.numRows == 1:
             drawing = f"[ {rowToStr(0)} ]"
@@ -183,9 +187,24 @@ class Matrix:
             drawing = "\n".join(drawing)
         return drawing
 
+    def swapRows(self, idx1, idx2):
+        newMatrix = deepcopy(self)
+        for j in range(self.numCols):
+            newMatrix[idx1, j], newMatrix[idx2, j] = (
+                newMatrix[idx2, j],
+                newMatrix[idx1, j],
+            )
+        return newMatrix
+
+    def swapColumns(self, idx1, idx2):
+        newMatrix = deepcopy(self)
+        col1, col2 = self.columns[idx1], self.columns[idx2]
+        for i in range(self.numRows):
+            newMatrix[i, idx1], newMatrix[i, idx2] = col2[i], col1[i]
+        return newMatrix
+
     def transpose(self):
-        newValues = [
-            [self.values[j][i] for j in range(self.numCols)]
-            for i in range(self.numRows)
+        newRows = [
+            [self.rows[j][i] for j in range(self.numCols)] for i in range(self.numRows)
         ]
-        return Matrix(newValues)
+        return Matrix(newRows)
