@@ -196,7 +196,7 @@ class Matrix:
         if value == 0:
             newMatrix = Matrix.identity(self.numRows)
         elif value == -1:
-            pass  # TODO: add .invert() method
+            newMatrix = self.invert()
         elif value < -1:
             raise ValueError(
                 "La matriz debe ser elevada a una potencia mayor o igual que -1."
@@ -208,12 +208,14 @@ class Matrix:
         return newMatrix
 
     def __str__(self):
-        columnStrWidths = [max(len(str(x)) for x in column) for column in self.columns]
+        columnStrWidths = [
+            max(len(f"{x:g}") for x in column) for column in self.columns
+        ]
         maxColWidth = (
             columnStrWidths[0] if len(columnStrWidths) == 1 else max(*columnStrWidths)
         )
         rowToStr = lambda rowIdx: " ".join(
-            map(lambda x: str(x).rjust(maxColWidth), self.rows[rowIdx])
+            map(lambda x: f"{x:g}".rjust(maxColWidth), self.rows[rowIdx])
         )
         if self.numRows == 1:
             drawing = f"[ {rowToStr(0)} ]"
