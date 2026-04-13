@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from random import randint
 from collections import Counter
+from math import isclose
 
 
 @dataclass
@@ -24,13 +25,7 @@ class Matrix:
         if hasEmptyCols:
             raise ValueError("La matriz no debe tener columnas vacías.")
 
-        self.rows = [
-            [
-                int(self[i, j]) if self[i, j].is_integer() else self[i, j]
-                for j in range(self.numCols)
-            ]
-            for i in range(self.numRows)
-        ]
+        self._cleanFloats_inPlace()
 
     @classmethod
     def identity(cls, size):
@@ -175,9 +170,7 @@ class Matrix:
         return newMatrix
 
     def __str__(self):
-        columnStrWidths = [
-            max(len(str(x)) for x in self.columns[i]) for i in range(self.numRows)
-        ]
+        columnStrWidths = [max(len(str(x)) for x in column) for column in self.columns]
         maxColWidth = (
             columnStrWidths[0] if len(columnStrWidths) == 1 else max(*columnStrWidths)
         )
@@ -193,6 +186,23 @@ class Matrix:
             drawing.append(f"└ {rowToStr(self.numRows - 1)} ┘")
             drawing = "\n".join(drawing)
         return drawing
+
+    def _cleanFloats_inPlace(self):
+        for i in range(self.numRows):
+            for j in range(self.numCols):
+                value = self[i, j]
+                if isinstance(value, float):
+                    nearestInt = round(value)
+                    if isclose(value, nearestInt):
+                        self[i, j] = nearestInt
+        return self
+
+    def round(self, decimals=3):
+        newRows = [
+            [round(self[i, j], decimals) for j in range(self.numCols)]
+            for i in range(self.numRows)
+        ]
+        return Matrix(newRows)
 
     def swapRows(self, idx1, idx2):
         newMatrix = Matrix(self.rows)
