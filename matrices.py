@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from copy import deepcopy
 from random import randint
 from collections import Counter
 
@@ -24,6 +23,14 @@ class Matrix:
             )
         if hasEmptyCols:
             raise ValueError("La matriz no debe tener columnas vacías.")
+
+        self.rows = [
+            [
+                int(self[i, j]) if self[i, j].is_integer() else self[i, j]
+                for j in range(self.numCols)
+            ]
+            for i in range(self.numRows)
+        ]
 
     @classmethod
     def identity(cls, size):
@@ -162,7 +169,7 @@ class Matrix:
                 "La matriz debe ser elevada a una potencia mayor o igual que -1."
             )
         else:
-            matrixCopy, newMatrix = deepcopy(self), deepcopy(self)
+            matrixCopy, newMatrix = Matrix(self.rows), Matrix(self.rows)
             for _ in range(value - 1):
                 newMatrix *= matrixCopy
         return newMatrix
@@ -188,7 +195,7 @@ class Matrix:
         return drawing
 
     def swapRows(self, idx1, idx2):
-        newMatrix = deepcopy(self)
+        newMatrix = Matrix(self.rows)
         for j in range(self.numCols):
             newMatrix[idx1, j], newMatrix[idx2, j] = (
                 newMatrix[idx2, j],
@@ -197,7 +204,7 @@ class Matrix:
         return newMatrix
 
     def swapColumns(self, idx1, idx2):
-        newMatrix = deepcopy(self)
+        newMatrix = Matrix(self.rows)
         col1, col2 = self.columns[idx1], self.columns[idx2]
         for i in range(self.numRows):
             newMatrix[i, idx1], newMatrix[i, idx2] = col2[i], col1[i]
