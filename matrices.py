@@ -60,13 +60,25 @@ class Matrix:
 
     @property
     def columns(self):
-        return [
-            [self.rows[i][j] for i in range(self.numRows)] for j in range(self.numCols)
-        ]
+        return list(map(list, zip(*self.rows)))
+
+    @property
+    def isSquare(self):
+        return self.numRows == self.numCols
+
+    @property
+    def isTriangular(self):
+        if not self.isSquare:
+            return False
+        upperTriangle = [self.rows[i][i + 1 :] for i in range(self.numRows)]
+        lowerTriangle = [self.rows[i][: i - self.numRows] for i in range(self.numRows)]
+        return all(not any(row) for row in upperTriangle) or all(
+            not any(row) for row in lowerTriangle
+        )
 
     @property
     def determinant(self):
-        if self.numRows != self.numCols:
+        if not self.isSquare:
             raise ValueError("La matriz debe ser cuadrada para poseer determinante.")
         if self.numRows == 2:
             return self[0, 0] * self[1, 1] - self[0, 1] * self[1, 0]
@@ -167,7 +179,7 @@ class Matrix:
         return Matrix(newRows)
 
     def __pow__(self, value):
-        if self.numRows != self.numCols:
+        if not self.isSquare:
             raise ValueError("La matriz debe ser de tamaño n * n.")
         if not isinstance(value, int):
             raise TypeError('La potencia debe ser de tipo "int".')
