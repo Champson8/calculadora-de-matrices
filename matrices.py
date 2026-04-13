@@ -10,10 +10,14 @@ class Matrix:
 
     def __post_init__(self):
         self.numRows = len(self.rows)
+
+        if self.numRows == 0:
+            raise ValueError("La matriz no puede estar vacía.")
+
         self.numCols = len(self.rows[0])
 
         if self.numRows == 1 and self.numCols == 1:
-            raise ValueError("La matriz no debe ser un único número.")
+            raise ValueError("La matriz no puede ser un único número.")
 
         areColsSameSize = all(len(row) == self.numCols for row in self.rows)
         hasEmptyCols = any(len(row) == 0 for row in self.rows)
@@ -23,7 +27,9 @@ class Matrix:
                 "La matriz debe tener el mismo número de columnas en cada fila."
             )
         if hasEmptyCols:
-            raise ValueError("La matriz no debe tener columnas vacías.")
+            raise ValueError("La matriz no puede tener columnas vacías.")
+
+        self.rows = [list(row) for row in self.rows]
 
         self._cleanFloats_inPlace()
 
@@ -225,3 +231,40 @@ class Matrix:
 
     def transpose(self):
         return Matrix(self.columns)
+
+    def lupDecompose(self):
+        lower = Matrix.identity(self.numRows)
+        upper = Matrix(self.rows)
+        perm = Matrix.identity(self.numRows)
+
+        numPivots = min(self.numRows, self.numCols)
+
+        detFactor = 1
+
+        for k in range(numPivots):
+            currColumnAbs = list(map(abs, upper.columns[k][k:]))
+            maxValue = max(currColumnAbs)
+            pivotRow = currColumnAbs.index(maxValue) + k
+
+            if isclose(maxValue, 0):
+                continue
+
+            if pivotRow != k:
+                detFactor *= -1
+                upper = upper.swapRows(k, pivotRow)
+                perm = perm.swapRows(k, pivotRow)
+                for j in range(k):
+                    lower[k, j], lower[pivotRow, j] = lower[pivotRow, j], lower[k, j]
+
+            for i in range(k + 1, self.numRows):
+                factor = upper[i, k] / upper[k, k]
+                lower[i, k] = factor
+                for j in range(k, self.numCols):
+                    upper[i, j] -= upper[k, j] * factor
+
+        return (
+            perm,
+            lower._cleanFloats_inPlace(),
+            upper._cleanFloats_inPlace(),
+            detFactor,
+        )
