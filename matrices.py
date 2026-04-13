@@ -230,12 +230,41 @@ class Matrix:
                         self[i, j] = nearestInt
         return self
 
-    def round(self, decimals=3):
-        newRows = [
-            [round(self[i, j], decimals) for j in range(self.numCols)]
-            for i in range(self.numRows)
-        ]
-        return Matrix(newRows)
+    def _solveWithLUP(self, L, U, P, b):
+        infSolutions = noSolutions = False
+        x = P * b
+
+        for i in range(self.numRows - 1):
+            for k in range(i + 1, self.numRows):
+                if L[k, i] != 0:
+                    factor = L[k, i] / L[i, i]
+                    L = L.addRows(i, k, -factor)
+                    x = x.addRows(i, k, -factor)
+
+        for i in range(self.numRows):
+            infSolutions = noSolutions = False
+            if U[i, i] == 0:
+                if x[i, 0] == 0:
+                    infSolutions = True
+                else:
+                    noSolutions = True
+                break
+
+        if infSolutions:
+            raise ValueError("La matriz tiene infinitas soluciones.")
+        elif noSolutions:
+            raise ValueError("La matriz no tiene soluciones.")
+
+        for i in range(self.numRows - 1, 0, -1):
+            for k in range(i - 1, -1, -1):
+                if U[k, i] != 0:
+                    factor = U[k, i] / U[i, i]
+                    U = U.addRows(i, k, -factor)
+                    x = x.addRows(i, k, -factor)
+        for i in range(self.numRows):
+            x[i, 0] /= U[i, i]
+
+        return x._cleanFloats_inPlace()
 
     def swapRows(self, idx1, idx2):
         if any(idx < 0 or idx >= self.numRows for idx in [idx1, idx2]):
@@ -256,7 +285,14 @@ class Matrix:
         for j in range(self.numCols):
             newMatrix[idx2, j] += scaledRow[j]
         return newMatrix
-    
+
+    def round(self, decimals=3):
+        newRows = [
+            [round(self[i, j], decimals) for j in range(self.numCols)]
+            for i in range(self.numRows)
+        ]
+        return Matrix(newRows)
+
     def transpose(self):
         return Matrix(self.columns)
 
@@ -295,3 +331,8 @@ class Matrix:
             upper._cleanFloats_inPlace(),
             detFactor,
         )
+
+    def solve(self, b):
+        P, L, U, _ = self.lupDecompose()
+        x = self._solveWithLUP(L, U, P, b)
+        return x
