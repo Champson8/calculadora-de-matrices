@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from functools import cached_property
 from random import randint
 from collections import Counter
 from math import isclose
@@ -58,6 +59,10 @@ class Matrix:
         ]
         return cls(rows)
 
+    @cached_property
+    def _lup(self):
+        return self.lupDecompose()
+
     @property
     def columns(self):
         return list(map(list, zip(*self.rows)))
@@ -109,7 +114,7 @@ class Matrix:
                     det = 1
                     triangleMatrix = self
                 else:
-                    P, L, U, det = self.lupDecompose()
+                    _, _, U, det = self._lup
                     triangleMatrix = U
                 for i in range(self.numRows):
                     det *= triangleMatrix[i, i]
@@ -293,6 +298,21 @@ class Matrix:
         ]
         return Matrix(newRows)
 
+    def invert(self):
+        if self.determinant == 0:
+            raise ValueError("La matriz no es invertible.")
+
+        P, L, U, _ = self._lup
+        inverse = Matrix.zero(self.numRows, self.numCols)
+
+        for j in range(self.numCols):
+            identityVector = Matrix([[1 if i == j else 0] for i in range(self.numRows)])
+            x = self._solveWithLUP(L, U, P, identityVector)
+            for i in range(self.numRows):
+                inverse[i, j] = x[i, 0]
+
+        return inverse._cleanFloats_inPlace()
+
     def transpose(self):
         return Matrix(self.columns)
 
@@ -333,6 +353,6 @@ class Matrix:
         )
 
     def solve(self, b):
-        P, L, U, _ = self.lupDecompose()
+        P, L, U, _ = self._lup
         x = self._solveWithLUP(L, U, P, b)
         return x
