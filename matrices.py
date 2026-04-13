@@ -82,7 +82,7 @@ class Matrix:
             )
             if isDetZero:
                 return 0
-            if self.numRows == 3:
+            elif self.numRows == 3:
                 return (
                     self[0, 0] * self[1, 1] * self[2, 2]
                     + self[0, 1] * self[1, 2] * self[2, 0]
@@ -92,6 +92,13 @@ class Matrix:
                     + self[0, 1] * self[1, 0] * self[2, 2]
                     + self[0, 0] * self[1, 2] * self[2, 1]
                 )
+            else:
+                P, L, U, det = self.lupDecompose()
+                for i in range(self.numRows):
+                    det *= U[i, i]
+                if isinstance(det, float) and isclose(det, round(det)):
+                    det = int(round(det))
+                return det
 
     def __getitem__(self, idx):
         if isinstance(idx, int):
@@ -202,7 +209,7 @@ class Matrix:
                 value = self[i, j]
                 if isinstance(value, float):
                     nearestInt = round(value)
-                    if isclose(value, nearestInt):
+                    if isclose(value, nearestInt, abs_tol=1e-12):
                         self[i, j] = nearestInt
         return self
 
@@ -246,7 +253,7 @@ class Matrix:
             maxValue = max(currColumnAbs)
             pivotRow = currColumnAbs.index(maxValue) + k
 
-            if isclose(maxValue, 0):
+            if isclose(maxValue, 0, abs_tol=1e-12):
                 continue
 
             if pivotRow != k:
