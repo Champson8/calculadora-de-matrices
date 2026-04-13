@@ -105,9 +105,14 @@ class Matrix:
                     + self[0, 0] * self[1, 2] * self[2, 1]
                 )
             else:
-                P, L, U, det = self.lupDecompose()
+                if self.isTriangular:
+                    det = 1
+                    triangleMatrix = self
+                else:
+                    P, L, U, det = self.lupDecompose()
+                    triangleMatrix = U
                 for i in range(self.numRows):
-                    det *= U[i, i]
+                    det *= triangleMatrix[i, i]
                 if isinstance(det, float) and isclose(det, round(det)):
                     det = int(round(det))
                 return det
