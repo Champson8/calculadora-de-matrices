@@ -33,19 +33,22 @@ class Matrix:
         return cls(rows)
 
     @classmethod
-    def zero(cls, size):
-        rows = [[0 for _ in range(size)] for _ in range(size)]
+    def zero(cls, numRows, numCols):
+        rows = [[0 for _ in range(numCols)] for _ in range(numRows)]
         return cls(rows)
 
     @classmethod
-    def sequential(cls, size):
-        rows = [[i * size + j for j in range(1, size + 1)] for i in range(size)]
-        return cls(rows)
-
-    @classmethod
-    def random(cls, size, maxValue=9):
+    def sequential(cls, numRows, numCols):
         rows = [
-            [randint(-maxValue, maxValue) for _ in range(size)] for _ in range(size)
+            [i * numCols + j for j in range(1, numCols + 1)] for i in range(numRows)
+        ]
+        return cls(rows)
+
+    @classmethod
+    def random(cls, numRows, numCols, maxValue=9):
+        rows = [
+            [randint(-maxValue, maxValue) for _ in range(numCols)]
+            for _ in range(numRows)
         ]
         return cls(rows)
 
@@ -221,7 +224,4 @@ class Matrix:
         return newMatrix
 
     def transpose(self):
-        newRows = [
-            [self.rows[j][i] for j in range(self.numCols)] for i in range(self.numRows)
-        ]
-        return Matrix(newRows)
+        return Matrix(self.columns)
