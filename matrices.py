@@ -238,6 +238,8 @@ class Matrix:
         return Matrix(newRows)
 
     def swapRows(self, idx1, idx2):
+        if any(idx < 0 or idx >= self.numRows for idx in [idx1, idx2]):
+            raise IndexError("Índice fuera de rango.")
         newMatrix = Matrix(self.rows)
         for j in range(self.numCols):
             newMatrix[idx1, j], newMatrix[idx2, j] = (
@@ -246,13 +248,15 @@ class Matrix:
             )
         return newMatrix
 
-    def swapColumns(self, idx1, idx2):
+    def addRows(self, idx1, idx2, scalar=1):
+        if any(idx < 0 or idx >= self.numRows for idx in [idx1, idx2]):
+            raise IndexError("Índice fuera de rango.")
         newMatrix = Matrix(self.rows)
-        col1, col2 = self.columns[idx1], self.columns[idx2]
-        for i in range(self.numRows):
-            newMatrix[i, idx1], newMatrix[i, idx2] = col2[i], col1[i]
+        scaledRow = list(map(lambda x: x * scalar, newMatrix.rows[idx1]))
+        for j in range(self.numCols):
+            newMatrix[idx2, j] += scaledRow[j]
         return newMatrix
-
+    
     def transpose(self):
         return Matrix(self.columns)
 
@@ -283,8 +287,7 @@ class Matrix:
             for i in range(k + 1, self.numRows):
                 factor = upper[i, k] / upper[k, k]
                 lower[i, k] = factor
-                for j in range(k, self.numCols):
-                    upper[i, j] -= upper[k, j] * factor
+                upper = upper.addRows(k, i, -factor)
 
         return (
             perm,
