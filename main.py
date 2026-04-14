@@ -15,12 +15,8 @@ class AppState:
     isRunning: bool = True
 
     @property
-    def hasOneMatrix(self):
-        return bool(self.matrixA) ^ bool(self.matrixB)
-
-    @property
-    def hasNoMatrices(self):
-        return not self.matrixA and not self.matrixB
+    def numMatrices(self):
+        return 2 - [self.matrixA, self.matrixB].count(None)
 
 
 def clearConsole():
@@ -75,20 +71,22 @@ def main():
         match state.currentMenu:
 
             case "main":
-                options = [
-                    "Ingresar Matriz",
-                    "Multiplicar Matriz por Escalar",
-                    "Invertir Matriz",
-                    "Transponer Matriz",
-                    "Resolver Sistema de Ecuaciones Lineales",
+                options = ["Ingresar Matriz"]
+                binaryOptions = [
                     "Sumar Matrices",
                     "Restar Matrices",
                     "Multiplicar Matrices",
                 ]
-                if state.hasOneMatrix:
-                    options = options[:5]
-                elif state.hasNoMatrices:
-                    options = options[0:1]
+                unaryOptions = [
+                    "Multiplicar Matriz por Escalar",
+                    "Invertir Matriz",
+                    "Transponer Matriz",
+                    "Resolver Sistema de Ecuaciones Lineales",
+                ]
+                if state.numMatrices >= 1:
+                    options += unaryOptions
+                if state.numMatrices == 2:
+                    options += binaryOptions
                 choice = displayInteractiveMenu(options)
 
 
