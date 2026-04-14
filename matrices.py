@@ -293,13 +293,6 @@ class Matrix:
             newMatrix[idx2, j] += scaledRow[j]
         return newMatrix
 
-    def round(self, decimals=3):
-        newRows = [
-            [round(self[i, j], decimals) for j in range(self.numCols)]
-            for i in range(self.numRows)
-        ]
-        return Matrix(newRows)
-
     def invert(self):
         if self.determinant == 0:
             raise ValueError("La matriz no es invertible.")
