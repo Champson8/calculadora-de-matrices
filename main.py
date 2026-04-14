@@ -24,15 +24,23 @@ class AppState:
     currentMenu: str = "main"
     isRunning: bool = True
 
+    @property
+    def hasOneMatrix(self):
+        return bool(self.matrixA) ^ bool(self.matrixB)
 
-def overwriteConsole(message="\033[H\033[2J\033[3J"):
-    stdout.write(message)
+    @property
+    def hasNoMatrices(self):
+        return not self.matrixA and not self.matrixB
+
+
+def clearConsole():
+    stdout.write("\033[H\033[2J\033[3J")
     stdout.flush()
 
 
 def inputToAction(inp):
-    pairs = {b"w": "up", b"s": "down", b"\r": "ENTER"}
-    extendedPairs = {b"H": "up", b"P": "down"}
+    pairs = {b"w": "UP", b"s": "DOWN", b"\r": "ENTER", b"\x1b": "ESCAPE"}
+    extendedPairs = {b"H": "UP", b"P": "DOWN"}
     if inp in pairs:
         inp = pairs[inp]
     elif inp in [b"\x00", b"\xe0"]:
