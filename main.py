@@ -3,18 +3,8 @@ from sys import stdout
 from msvcrt import getch
 from matrix import Matrix
 
-TITLE = "=== CALCULADORA DE MATRICES ==="
-
-options = [
-    "Ingresar Matriz",
-    "Multiplicar Matriz por Escalar",
-    "Invertir Matriz",
-    "Transponer Matriz",
-    "Resolver Sistema de Ecuaciones Lineales",
-    "Sumar Matrices",
-    "Restar Matrices",
-    "Multiplicar Matrices",
-]
+TITLE = "=== CALCULADORA DE MATRICES ===\n"
+HIDE_CURSOR = "\033[?25l"
 
 
 @dataclass
@@ -52,20 +42,54 @@ def inputToAction(inp):
     return inp
 
 
+def displayInteractiveMenu(options):
+    numOptions = len(options)
+    selected = 0
+
+    while True:
+        clearConsole()
+        print(TITLE)
+
+        for i, option in enumerate(options):
+            print(f" > [ {option} ] < " if i == selected else option)
+
+        action = inputToAction(getch().lower())
+
+        match action:
+            case "UP":
+                selected = (selected - 1) % numOptions
+            case "DOWN":
+                selected = (selected + 1) % numOptions
+            case "ENTER":
+                return selected
+            case "ESCAPE":
+                return None
+
+
 def main():
     state = AppState()
-    selected = 0
+    print(HIDE_CURSOR)
     while state.isRunning:
-        overwriteConsole()
-        for i, option in enumerate(options):
-            print(option, "this" if i == selected else "")
-        action = inputToAction(getch().lower())
-        if action == "up" and selected > 0:
-            selected -= 1
-        elif action == "down" and selected < len(options) - 1:
-            selected += 1
-        elif action == "ENTER":
-            pass
+        clearConsole()
+
+        match state.currentMenu:
+
+            case "main":
+                options = [
+                    "Ingresar Matriz",
+                    "Multiplicar Matriz por Escalar",
+                    "Invertir Matriz",
+                    "Transponer Matriz",
+                    "Resolver Sistema de Ecuaciones Lineales",
+                    "Sumar Matrices",
+                    "Restar Matrices",
+                    "Multiplicar Matrices",
+                ]
+                if state.hasOneMatrix:
+                    options = options[:5]
+                elif state.hasNoMatrices:
+                    options = options[0:1]
+                choice = displayInteractiveMenu(options)
 
 
 if __name__ == "__main__":
