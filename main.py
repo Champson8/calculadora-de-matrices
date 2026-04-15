@@ -12,6 +12,8 @@ class AppState:
     matrixA: Matrix = None
     matrixB: Matrix = None
     currentMenu: str = "main"
+    activeTarget: str = None
+    nextMenu: str = None
     isRunning: bool = True
 
     @property
@@ -95,22 +97,39 @@ def main():
                 match choice:
                     case None:
                         state.isRunning = False
-                    case 0:
-                        state.currentMenu = "register"
-                    case 1:
-                        state.currentMenu = "multiply_scalar"
-                    case 2:
-                        state.currentMenu = "invert"
-                    case 3:
-                        state.currentMenu = "transpose"
-                    case 4:
-                        state.currentMenu = "solve"
+                    case 0 | 1 | 2 | 3 | 4:
+                        state.currentMenu = "select_unary_target"
+                        match choice:
+                            case 0:
+                                state.nextMenu = "register"
+                            case 1:
+                                state.nextMenu = "multiply_scalar"
+                            case 2:
+                                state.nextMenu = "invert"
+                            case 3:
+                                state.nextMenu = "transpose"
+                            case 4:
+                                state.nextMenu = "solve"
                     case 5:
                         state.currentMenu = "add"
                     case 6:
                         state.currentMenu = "subtract"
                     case 7:
                         state.currentMenu = "multiply_matrices"
+
+            case "select_unary_target":
+                options = ["Matriz A", "Matriz B"]
+                choice = displayInteractiveMenu("seleccionar matriz", options)
+                match choice:
+                    case None:
+                        state.currentMenu = "main"
+                    case 0:
+                        state.currentMenu = state.nextMenu
+                        state.activeTarget = "A"
+                    case 1:
+                        state.currentMenu = state.nextMenu
+                        state.activeTarget = "B"
+                state.nextMenu = None
 
 
 if __name__ == "__main__":
