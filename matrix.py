@@ -3,6 +3,7 @@ from functools import cached_property
 from random import randint
 from collections import Counter
 from math import isclose
+from utils import drawMatrix
 
 
 @dataclass
@@ -208,24 +209,7 @@ class Matrix:
         return newMatrix
 
     def __str__(self):
-        columnStrWidths = [
-            max(len(f"{x:g}") for x in column) for column in self.columns
-        ]
-        maxColWidth = (
-            columnStrWidths[0] if len(columnStrWidths) == 1 else max(*columnStrWidths)
-        )
-        rowToStr = lambda rowIdx: " ".join(
-            map(lambda x: f"{x:g}".rjust(maxColWidth), self.rows[rowIdx])
-        )
-        if self.numRows == 1:
-            drawing = f"[ {rowToStr(0)} ]"
-        else:
-            drawing = [f"┌ {rowToStr(0)} ┐"]
-            for i in range(1, self.numRows - 1):
-                drawing.append(f"│ {rowToStr(i)} │")
-            drawing.append(f"└ {rowToStr(self.numRows - 1)} ┘")
-            drawing = "\n".join(drawing)
-        return drawing
+        return drawMatrix(self.rows)
 
     def _cleanFloats_inPlace(self):
         for i in range(self.numRows):

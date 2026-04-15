@@ -8,3 +8,22 @@ def clearConsole():
 
 def printTitle(title: str):
     print(f"=== {title.upper()} ===\n")
+
+
+def drawMatrix(rows):
+    columnStrWidths = [
+        max(len(f"{x:g}") for x in column) for column in list(map(list, zip(*rows)))
+    ]
+    maxColWidth = max(columnStrWidths)
+    rowToStr = lambda rowIdx: " ".join(
+        map(lambda x: f"{x:g}".rjust(maxColWidth), rows[rowIdx])
+    )
+    if len(rows) == 1:
+        drawing = f"[ {rowToStr(0)} ]"
+    else:
+        drawing = [f"┌ {rowToStr(0)} ┐"]
+        for i in range(1, len(rows) - 1):
+            drawing.append(f"│ {rowToStr(i)} │")
+        drawing.append(f"└ {rowToStr(len(rows) - 1)} ┘")
+        drawing = "\n".join(drawing)
+    return drawing
