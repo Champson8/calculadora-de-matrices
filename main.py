@@ -3,8 +3,7 @@ from sys import stdout
 from msvcrt import getch
 from matrix import Matrix
 
-TITLE = "=== CALCULADORA DE MATRICES ===\n"
-CONTROLS = "\nENTER para seleccionar\nESC para salir"
+CONTROLS = "\nENTER para seleccionar\nESC para regresar/salir"
 HIDE_CURSOR = "\033[?25l"
 
 
@@ -41,13 +40,13 @@ def getUserAction():
             return "ESCAPE"
 
 
-def displayInteractiveMenu(options):
+def displayInteractiveMenu(title: str, options: list | tuple):
     numOptions = len(options)
     selected = 0
 
     while True:
         clearConsole()
-        print(TITLE)
+        print(f"=== {title.upper()} ===\n")
 
         for i, option in enumerate(options):
             print(f" > [ {option} ] < " if i == selected else option)
@@ -92,7 +91,26 @@ def main():
                     options += unaryOptions
                 if state.numMatrices == 2:
                     options += binaryOptions
-                choice = displayInteractiveMenu(options)
+                choice = displayInteractiveMenu("calculadora de matrices", options)
+                match choice:
+                    case None:
+                        state.isRunning = False
+                    case 0:
+                        state.currentMenu = "register"
+                    case 1:
+                        state.currentMenu = "multiply_scalar"
+                    case 2:
+                        state.currentMenu = "invert"
+                    case 3:
+                        state.currentMenu = "transpose"
+                    case 4:
+                        state.currentMenu = "solve"
+                    case 5:
+                        state.currentMenu = "add"
+                    case 6:
+                        state.currentMenu = "subtract"
+                    case 7:
+                        state.currentMenu = "multiply_matrices"
 
 
 if __name__ == "__main__":
