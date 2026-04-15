@@ -4,6 +4,7 @@ from msvcrt import getch
 from matrix import Matrix
 
 TITLE = "=== CALCULADORA DE MATRICES ===\n"
+CONTROLS = "\nENTER para seleccionar\nESC para salir"
 HIDE_CURSOR = "\033[?25l"
 
 
@@ -24,18 +25,20 @@ def clearConsole():
     stdout.flush()
 
 
-def inputToAction(inp):
-    pairs = {b"w": "UP", b"s": "DOWN", b"\r": "ENTER", b"\x1b": "ESCAPE"}
-    extendedPairs = {b"H": "UP", b"P": "DOWN"}
-    if inp in pairs:
-        inp = pairs[inp]
-    elif inp in [b"\x00", b"\xe0"]:
+def getUserAction():
+    inp = getch().lower()
+    if inp in [b"\x00", b"\xe0"]:
         inp = getch()
-        if inp in extendedPairs:
-            inp = extendedPairs[inp]
-    else:
-        inp = inp.decode()
-    return inp
+
+    match inp:
+        case b"w" | b"H":
+            return "UP"
+        case b"s" | b"P":
+            return "DOWN"
+        case b"\r":
+            return "ENTER"
+        case b"\x1b":
+            return "ESCAPE"
 
 
 def displayInteractiveMenu(options):
@@ -49,7 +52,9 @@ def displayInteractiveMenu(options):
         for i, option in enumerate(options):
             print(f" > [ {option} ] < " if i == selected else option)
 
-        action = inputToAction(getch().lower())
+        print(CONTROLS)
+
+        action = getUserAction()
 
         match action:
             case "UP":
@@ -72,16 +77,16 @@ def main():
 
             case "main":
                 options = ["Ingresar Matriz"]
-                binaryOptions = [
-                    "Sumar Matrices",
-                    "Restar Matrices",
-                    "Multiplicar Matrices",
-                ]
                 unaryOptions = [
                     "Multiplicar Matriz por Escalar",
                     "Invertir Matriz",
                     "Transponer Matriz",
                     "Resolver Sistema de Ecuaciones Lineales",
+                ]
+                binaryOptions = [
+                    "Sumar Matrices",
+                    "Restar Matrices",
+                    "Multiplicar Matrices",
                 ]
                 if state.numMatrices >= 1:
                     options += unaryOptions
