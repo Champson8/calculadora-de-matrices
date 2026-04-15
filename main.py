@@ -1,10 +1,8 @@
 from dataclasses import dataclass
-from sys import stdout
 from msvcrt import getch
 from matrix import Matrix
-
-CONTROLS = "\nENTER para seleccionar\nESC para regresar/salir"
-HIDE_CURSOR = "\033[?25l"
+from utils import clearConsole, printTitle
+from constants import CONTROLS, HIDE_CURSOR
 
 
 @dataclass
@@ -19,11 +17,6 @@ class AppState:
     @property
     def numMatrices(self):
         return 2 - [self.matrixA, self.matrixB].count(None)
-
-
-def clearConsole():
-    stdout.write("\033[H\033[2J\033[3J")
-    stdout.flush()
 
 
 def getUserAction():
@@ -48,7 +41,7 @@ def displayInteractiveMenu(title: str, options: list | tuple):
 
     while True:
         clearConsole()
-        print(f"=== {title.upper()} ===\n")
+        printTitle(title)
 
         for i, option in enumerate(options):
             print(f" > [ {option} ] < " if i == selected else option)
@@ -120,16 +113,18 @@ def main():
             case "select_unary_target":
                 options = ["Matriz A", "Matriz B"]
                 choice = displayInteractiveMenu("seleccionar matriz", options)
+                state.currentMenu = state.nextMenu
                 match choice:
                     case None:
                         state.currentMenu = "main"
                     case 0:
-                        state.currentMenu = state.nextMenu
                         state.activeTarget = "A"
                     case 1:
-                        state.currentMenu = state.nextMenu
                         state.activeTarget = "B"
                 state.nextMenu = None
+
+            case "register":
+                pass
 
 
 if __name__ == "__main__":
