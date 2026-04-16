@@ -1,8 +1,13 @@
 from dataclasses import dataclass
+from time import sleep
 from matrix import Matrix
 from utils import getUserAction, clearConsole, printTitle
 from app_io.input_reading import readManualMatrix, readFileMatrix, readScalar
-from constants import CONTROLS, HIDE_CURSOR, SHOW_CURSOR
+from constants import HIDE_CURSOR, SHOW_CURSOR
+
+
+MAIN_CONTROLS = "\n* ENTER para seleccionar | ESC para regresar/salir"
+AFTER_OP_CONTROLS = "\n* ENTER para guardar | ESC para regresar"
 
 
 @dataclass
@@ -41,7 +46,7 @@ def displayInteractiveMenu(title: str, options: list | tuple):
         for i, option in enumerate(options):
             print(f" > [ {option} ] < " if i == selected else option)
 
-        print(CONTROLS)
+        print(MAIN_CONTROLS)
 
         action = getUserAction()
 
