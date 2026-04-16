@@ -230,7 +230,28 @@ def main():
                 pass
 
             case "multiply_matrices":
-                pass
+                title = "multiplicación de matrices"
+                options = ["A * B", "B * A"]
+                choice = displayInteractiveMenu("orden de operación", options)
+                if choice is None:
+                    app.currentMenu = "main"
+                    continue
+                elif choice == 0:
+                    operation = lambda: app.matrixA * app.matrixB
+                else:
+                    operation = lambda: app.matrixB * app.matrixA
+                clearConsole()
+                printTitle(title)
+                result = app.tryOperation(operation)
+                if result is None:
+                    continue
+                app.printMatrixOperation(result, options[choice])
+                action = getUserAction()
+                if action == "ESCAPE":
+                    app.currentMenu = "main"
+                else:
+                    pass
+
     print(SHOW_CURSOR)
 
 
