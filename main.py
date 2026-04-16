@@ -169,6 +169,7 @@ def main():
                         else:
                             app.matrixB = matrix
                 app.currentMenu = "main"
+                app.activeTargetName = None
 
             case "check_matrices":
                 printTitle("matrices")
@@ -189,6 +190,7 @@ def main():
                     app.currentMenu = "main"
                 else:
                     pass
+                app.activeTargetName = None
 
             case "invert":
                 printTitle("inversión")
@@ -201,6 +203,7 @@ def main():
                     app.currentMenu = "main"
                 else:
                     pass
+                app.activeTargetName = None
 
             case "transpose":
                 printTitle("transposición")
@@ -211,9 +214,11 @@ def main():
                     app.currentMenu = "main"
                 else:
                     pass
+                app.activeTargetName = None
 
             case "solve":
                 pass
+                app.activeTargetName = None
 
             case "add":
                 printTitle("suma")
@@ -226,8 +231,29 @@ def main():
                     app.currentMenu = "main"
                 else:
                     pass
+
             case "subtract":
-                pass
+                title = "resta"
+                options = ["A - B", "B - A"]
+                choice = displayInteractiveMenu("orden de operación", options)
+                if choice is None:
+                    app.currentMenu = "main"
+                    continue
+                elif choice == 0:
+                    operation = lambda: app.matrixA - app.matrixB
+                else:
+                    operation = lambda: app.matrixB - app.matrixA
+                clearConsole()
+                printTitle(title)
+                result = app.tryOperation(operation)
+                if result is None:
+                    continue
+                app.printMatrixOperation(result, options[choice])
+                action = getUserAction()
+                if action == "ESCAPE":
+                    app.currentMenu = "main"
+                else:
+                    pass
 
             case "multiply_matrices":
                 title = "multiplicación de matrices"
