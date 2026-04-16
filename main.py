@@ -217,7 +217,31 @@ def main():
                 app.activeTargetName = None
 
             case "solve":
-                pass
+                title = "resolver sistema de ecuaciones lineales"
+                bMatrix = readManualMatrix(
+                    "ingresar matriz de términos independientes",
+                    app.activeMatrix.numRows,
+                    1,
+                )
+                if bMatrix is not None:
+                    clearConsole()
+                    printTitle(title)
+                    result = app.tryOperation(lambda: app.activeMatrix.solve(bMatrix))
+                    if result is not None:
+                        print(
+                            app.drawMatrixInMenu(app.activeTargetName),
+                            "Matriz de Términos Independientes:",
+                            str(bMatrix),
+                            "\nSoluciones:",
+                            str(result),
+                            AFTER_OP_CONTROLS,
+                            sep="\n",
+                        )
+                action = getUserAction()
+                if action == "ESCAPE":
+                    app.currentMenu = "main"
+                else:
+                    pass
                 app.activeTargetName = None
 
             case "add":

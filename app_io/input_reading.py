@@ -30,10 +30,10 @@ def _parseLinesToMatrix(lines: list[str]):
         return None
 
 
-def readManualMatrix(title: str):
+def readManualMatrix(title: str, numRows: int = None, numCols: int = None):
     EXIT_CONTROLS = '\n* "exit" para regresar'
 
-    isValidInput = False
+    isValidInput = numRows and numCols
     while not isValidInput:
         print(SHOW_CURSOR)
         _clearAndShowTitle(title)
@@ -48,8 +48,8 @@ def readManualMatrix(title: str):
 
     _clearAndShowTitle(title)
 
-    numRows = int(rows)
-    numCols = int(cols)
+    numRows = numRows or int(rows)
+    numCols = numCols or int(cols)
     matrixRows = [["  _  "] * numCols for _ in range(numRows)]
     for i in range(numRows):
         for j in range(numCols):
