@@ -84,5 +84,24 @@ def readManualMatrix(targetName: str):
 
 
 def readFileMatrix(targetName: str):
-    clearConsole()
-    printTitle(f"ingresar matriz {targetName}")
+    print(SHOW_CURSOR)
+    _clearAndShowTitle(targetName)
+
+    file = Path(__file__).parent / ".." / "resources" / "matrices" / "matrix.txt"
+    matrix = None
+
+    if file.is_file():
+        with open(file.resolve()) as readFile:
+            matrix = _parseLinesToMatrix(readFile.readlines())
+
+    if matrix is not None:
+        choice = _confirmMatrix(matrix)
+        if choice == "exit":
+            return None
+        else:
+            return matrix
+    else:
+        print("Matriz inválida. Compruebe el archivo.")
+        print(HIDE_CURSOR)
+        sleep(3)
+        return None
