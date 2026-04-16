@@ -65,10 +65,13 @@ class App:
             self.currentMenu = "main"
         else:
             path = writeMatrixToFile(matrix)
-            if path is not None:
-                print(f"\nMatriz guardada en {path}")
+            if path is None:
+                return False
+            else:
+                print(f"Matriz guardada en {path}")
                 sleep(3)
                 self.currentMenu = "main"
+                return True
 
 
 def displayInteractiveMenu(title: str, options: list | tuple):
@@ -206,7 +209,9 @@ def main():
                 if result is None:
                     continue
                 app.printMatrixOperation(result, f"{app.activeTargetName}⁻¹")
-                app.promptMatrixWrite(result)
+                success = app.promptMatrixWrite(result)
+                if not success:
+                    continue
                 app.activeTargetName = None
 
             case "transpose":
@@ -237,7 +242,7 @@ def main():
                             AFTER_OP_CONTROLS,
                             sep="\n",
                         )
-                app.promptMatrixWrite(result)
+                        app.promptMatrixWrite(result)
                 app.activeTargetName = None
 
             case "add":

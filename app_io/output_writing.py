@@ -6,8 +6,8 @@ from utils import clearConsole, printTitle, getUserAction
 
 
 def _showError(message: str):
-    print(HIDE_CURSOR)
     print(message)
+    print(HIDE_CURSOR)
     sleep(3)
 
 
@@ -26,15 +26,15 @@ def writeMatrixToFile(matrix: Matrix):
             return None
         elif path.exists():
             while True:
-                print(f"{path.name} ya existe.")
-                print("* ENTER para sobreescribir | ESC para regresar")
+                print(f"\n{path.name} ya existe.")
+                print("* ENTER para sobreescribir | ESC para regresar", HIDE_CURSOR)
                 action = getUserAction()
                 if action == "ESCAPE":
                     return None
                 elif action == "ENTER":
                     break
 
-        print(HIDE_CURSOR)
+        print(HIDE_CURSOR, end="\n")
 
         try:
             if path.suffix != ".txt":
