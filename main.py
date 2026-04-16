@@ -117,15 +117,16 @@ def main():
                 app.nextMenu = None
 
             case "register":
+                title = f"ingresar matriz {app.activeTarget}"
                 options = ["Ingresar Manualmente", "Leer Archivo (matrix.txt)"]
                 choice = displayInteractiveMenu("método de lectura de matriz", options)
                 if choice == None:
                     app.currentMenu = "main"
                 else:
                     matrix = (
-                        readManualMatrix(app.activeTarget)
+                        readManualMatrix(title)
                         if choice == 0
-                        else readFileMatrix(app.activeTarget)
+                        else readFileMatrix(title)
                     )
                     if matrix is not None:
                         if app.activeTarget == "A":

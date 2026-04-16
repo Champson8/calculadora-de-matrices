@@ -2,23 +2,20 @@ from pathlib import Path
 from time import sleep
 from matrix import Matrix
 from constants import HIDE_CURSOR, SHOW_CURSOR
-from utils import clearConsole, printTitle, drawMatrix
+from utils import getUserAction, clearConsole, printTitle, drawMatrix
 from .input_validation import areDimensionsValid, isFloatValid
 
 
-_EXIT_CONTROLS = '\n* "exit" para regresar'
-
-
-def _clearAndShowTitle(targetName: str):
+def _clearAndShowTitle(title: str):
     clearConsole()
-    printTitle(f"ingresar matriz {targetName}")
+    printTitle(title)
 
 
 def _confirmMatrix(matrix: Matrix):
-    print(matrix)
-    choice = input(_EXIT_CONTROLS + " | ENTER para confirmar\n")
-    print(HIDE_CURSOR)
-    return choice
+    print(
+        matrix, "\n* ENTER para confirmar | ESC para regresar\n", HIDE_CURSOR, sep="\n"
+    )
+    return getUserAction()
 
 
 def _parseLinesToMatrix(lines: list[str]):
@@ -33,11 +30,13 @@ def _parseLinesToMatrix(lines: list[str]):
         return None
 
 
-def readManualMatrix(targetName: str):
+def readManualMatrix(title: str):
+    EXIT_CONTROLS = '\n* "exit" para regresar'
+
     isValidInput = False
     while not isValidInput:
         print(SHOW_CURSOR)
-        _clearAndShowTitle(targetName)
+        _clearAndShowTitle(title)
 
         rows = input("Número de filas: ")
         cols = input("Número de columnas: ")
@@ -47,7 +46,7 @@ def readManualMatrix(targetName: str):
             print(HIDE_CURSOR)
             sleep(3)
 
-    _clearAndShowTitle(targetName)
+    _clearAndShowTitle(title)
 
     numRows = int(rows)
     numCols = int(cols)
@@ -58,10 +57,11 @@ def readManualMatrix(targetName: str):
 
             while True:
                 print(SHOW_CURSOR)
-                _clearAndShowTitle(targetName)
+                _clearAndShowTitle(title)
                 print(drawMatrix(matrixRows))
-                value = input(_EXIT_CONTROLS + f"\nValor de ({i+1}, {j+1}): ")
+                value = input(EXIT_CONTROLS + f"\nValor de ({i+1}, {j+1}): ")
                 if value.lower() == "exit":
+                    print(HIDE_CURSOR)
                     return
                 if isFloatValid(value):
                     matrixRows[i][j] = float(value)
@@ -72,20 +72,20 @@ def readManualMatrix(targetName: str):
                     sleep(3)
 
     print(SHOW_CURSOR)
-    _clearAndShowTitle(targetName)
+    _clearAndShowTitle(title)
 
     matrix = Matrix(matrixRows)
-    choice = _confirmMatrix(matrix)
+    action = _confirmMatrix(matrix)
 
-    if choice == "exit":
+    if action == "ESCAPE":
         return None
-    else:
+    elif action == "ENTER":
         return matrix
 
 
-def readFileMatrix(targetName: str):
+def readFileMatrix(title: str):
     print(SHOW_CURSOR)
-    _clearAndShowTitle(targetName)
+    _clearAndShowTitle(title)
 
     file = Path(__file__).parent / ".." / "resources" / "matrices" / "matrix.txt"
     matrix = None
@@ -95,10 +95,10 @@ def readFileMatrix(targetName: str):
             matrix = _parseLinesToMatrix(readFile.readlines())
 
     if matrix is not None:
-        choice = _confirmMatrix(matrix)
-        if choice == "exit":
+        action = _confirmMatrix(matrix)
+        if action == "ESCAPE":
             return None
-        else:
+        elif action == "ENTER":
             return matrix
     else:
         print("Matriz inválida. Compruebe el archivo.")
