@@ -3,7 +3,7 @@ from msvcrt import getch
 from matrix import Matrix
 from utils import clearConsole, printTitle
 from app_io.input_reading import readManualMatrix, readFileMatrix
-from constants import CONTROLS, HIDE_CURSOR
+from constants import CONTROLS, HIDE_CURSOR, SHOW_CURSOR
 
 
 @dataclass
@@ -114,16 +114,18 @@ def main():
                         app.currentMenu = "multiply_matrices"
 
             case "select_unary_target":
-                options = ["Matriz A", "Matriz B"]
-                choice = displayInteractiveMenu("seleccionar matriz", options)
-                app.currentMenu = app.nextMenu
-                match choice:
-                    case None:
+                if app.numMatrices == 2 or app.nextMenu == "register":
+                    options = ["Matriz A", "Matriz B"]
+                    choice = displayInteractiveMenu("seleccionar matriz", options)
+                    if choice is None:
                         app.currentMenu = "main"
-                    case 0:
-                        app.activeTarget = "A"
-                    case 1:
-                        app.activeTarget = "B"
+                        continue
+                    else:
+                        choice = {0: "A", 1: "B"}[choice]
+                elif app.numMatrices == 1:
+                    choice = "A" if app.matrixA is not None else "B"
+                app.activeTarget = choice
+                app.currentMenu = app.nextMenu
                 app.nextMenu = None
 
             case "register":
@@ -158,6 +160,28 @@ def main():
                 print(drawing, "* ESC/ENTER para regresar", sep="\n")
                 if getUserAction() in ["ESCAPE", "ENTER"]:
                     app.currentMenu = "main"
+
+            case "multiply_scalar":
+                pass
+
+            case "invert":
+                pass
+
+            case "transpose":
+                pass
+
+            case "solve":
+                pass
+
+            case "add":
+                pass
+
+            case "subtract":
+                pass
+
+            case "multiply_matrices":
+                pass
+    print(SHOW_CURSOR)
 
 
 if __name__ == "__main__":
