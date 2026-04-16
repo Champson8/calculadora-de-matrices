@@ -191,7 +191,16 @@ def main():
                     pass
 
             case "invert":
-                pass
+                printTitle("inversión")
+                result = app.tryOperation(lambda: app.activeMatrix.invert())
+                if result is None:
+                    continue
+                app.printMatrixOperation(result, f"{app.activeTargetName}⁻¹")
+                action = getUserAction()
+                if action == "ESCAPE":
+                    app.currentMenu = "main"
+                else:
+                    pass
 
             case "transpose":
                 pass
