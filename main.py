@@ -203,7 +203,14 @@ def main():
                     pass
 
             case "transpose":
-                pass
+                printTitle("transposición")
+                result = app.activeMatrix.transpose()
+                app.printMatrixOperation(result, f"{app.activeTargetName}ᵀ")
+                action = getUserAction()
+                if action == "ESCAPE":
+                    app.currentMenu = "main"
+                else:
+                    pass
 
             case "solve":
                 pass
