@@ -216,8 +216,16 @@ def main():
                 pass
 
             case "add":
-                pass
-
+                printTitle("suma")
+                result = app.tryOperation(lambda: app.matrixA + app.matrixB)
+                if result is None:
+                    continue
+                app.printMatrixOperation(result, "A + B")
+                action = getUserAction()
+                if action == "ESCAPE":
+                    app.currentMenu = "main"
+                else:
+                    pass
             case "subtract":
                 pass
 
