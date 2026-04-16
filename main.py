@@ -3,6 +3,7 @@ from time import sleep
 from matrix import Matrix
 from utils import getUserAction, clearConsole, printTitle
 from app_io.input_reading import readManualMatrix, readFileMatrix, readScalar
+from app_io.output_writing import writeMatrixToFile
 from constants import HIDE_CURSOR, SHOW_CURSOR
 
 
@@ -49,7 +50,7 @@ class App:
             sep="\n",
         )
 
-    def tryOperation(self, operation: function):
+    def tryOperation(self, operation):
         try:
             return operation()
         except Exception as error:
@@ -57,6 +58,17 @@ class App:
             sleep(3)
             self.currentMenu = "main"
             return None
+
+    def promptMatrixWrite(self, matrix: Matrix):
+        action = getUserAction()
+        if action == "ESCAPE":
+            self.currentMenu = "main"
+        else:
+            path = writeMatrixToFile(matrix)
+            if path is not None:
+                print(f"\nMatriz guardada en {path}")
+                sleep(3)
+                self.currentMenu = "main"
 
 
 def displayInteractiveMenu(title: str, options: list | tuple):
@@ -185,11 +197,7 @@ def main():
                 clearConsole()
                 printTitle(title)
                 app.printMatrixOperation(result, f"{app.activeTargetName} * {scalar}")
-                action = getUserAction()
-                if action == "ESCAPE":
-                    app.currentMenu = "main"
-                else:
-                    pass
+                app.promptMatrixWrite(result)
                 app.activeTargetName = None
 
             case "invert":
@@ -198,22 +206,14 @@ def main():
                 if result is None:
                     continue
                 app.printMatrixOperation(result, f"{app.activeTargetName}⁻¹")
-                action = getUserAction()
-                if action == "ESCAPE":
-                    app.currentMenu = "main"
-                else:
-                    pass
+                app.promptMatrixWrite(result)
                 app.activeTargetName = None
 
             case "transpose":
                 printTitle("transposición")
                 result = app.activeMatrix.transpose()
                 app.printMatrixOperation(result, f"{app.activeTargetName}ᵀ")
-                action = getUserAction()
-                if action == "ESCAPE":
-                    app.currentMenu = "main"
-                else:
-                    pass
+                app.promptMatrixWrite(result)
                 app.activeTargetName = None
 
             case "solve":
@@ -237,11 +237,7 @@ def main():
                             AFTER_OP_CONTROLS,
                             sep="\n",
                         )
-                action = getUserAction()
-                if action == "ESCAPE":
-                    app.currentMenu = "main"
-                else:
-                    pass
+                app.promptMatrixWrite(result)
                 app.activeTargetName = None
 
             case "add":
@@ -250,11 +246,7 @@ def main():
                 if result is None:
                     continue
                 app.printMatrixOperation(result, "A + B")
-                action = getUserAction()
-                if action == "ESCAPE":
-                    app.currentMenu = "main"
-                else:
-                    pass
+                app.promptMatrixWrite(result)
 
             case "subtract":
                 title = "resta"
@@ -273,11 +265,7 @@ def main():
                 if result is None:
                     continue
                 app.printMatrixOperation(result, options[choice])
-                action = getUserAction()
-                if action == "ESCAPE":
-                    app.currentMenu = "main"
-                else:
-                    pass
+                app.promptMatrixWrite(result)
 
             case "multiply_matrices":
                 title = "multiplicación de matrices"
@@ -296,11 +284,7 @@ def main():
                 if result is None:
                     continue
                 app.printMatrixOperation(result, options[choice])
-                action = getUserAction()
-                if action == "ESCAPE":
-                    app.currentMenu = "main"
-                else:
-                    pass
+                app.promptMatrixWrite(result)
 
     print(SHOW_CURSOR)
 

@@ -34,6 +34,8 @@ def writeMatrixToFile(matrix: Matrix):
                 elif action == "ENTER":
                     break
 
+        print(HIDE_CURSOR)
+
         try:
             if path.suffix != ".txt":
                 raise ValueError('La extensión del archivo debe ser ".txt".')
