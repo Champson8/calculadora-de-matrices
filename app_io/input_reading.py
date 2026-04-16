@@ -1,31 +1,53 @@
+from pathlib import Path
 from time import sleep
 from matrix import Matrix
 from constants import HIDE_CURSOR, SHOW_CURSOR
 from utils import clearConsole, printTitle, drawMatrix
-from .input_validation import areValidDimensions, isValidFloat
+from .input_validation import areDimensionsValid, isFloatValid
+
+
+_EXIT_CONTROLS = '\n* "exit" para regresar'
+
+
+def _clearAndShowTitle(targetName: str):
+    clearConsole()
+    printTitle(f"ingresar matriz {targetName}")
+
+
+def _confirmMatrix(matrix: Matrix):
+    print(matrix)
+    choice = input(_EXIT_CONTROLS + " | ENTER para confirmar\n")
+    print(HIDE_CURSOR)
+    return choice
+
+
+def _parseLinesToMatrix(lines: list[str]):
+    if not lines:
+        return None
+    try:
+        matrixRows = list(map(lambda line: line.replace("\n", "").split(), lines))
+        matrixRows = [[float(x) for x in row] for row in matrixRows]
+        matrix = Matrix(matrixRows)
+        return matrix
+    except:
+        return None
 
 
 def readManualMatrix(targetName: str):
-    EXIT_CONTROLS = '\n* "exit" para salir'
-
-    def clearAndShowTitle():
-        clearConsole()
-        printTitle(f"ingresar matriz {targetName}")
-
     isValidInput = False
     while not isValidInput:
         print(SHOW_CURSOR)
-        clearAndShowTitle()
+        _clearAndShowTitle(targetName)
 
         rows = input("Número de filas: ")
         cols = input("Número de columnas: ")
-        isValidInput = areValidDimensions(rows, cols)
+        isValidInput = areDimensionsValid(rows, cols)
         if not isValidInput:
             print("\nMatriz inválida. Intente de nuevo.")
             print(HIDE_CURSOR)
             sleep(3)
 
-    clearAndShowTitle()
+    _clearAndShowTitle(targetName)
 
     numRows = int(rows)
     numCols = int(cols)
@@ -36,12 +58,12 @@ def readManualMatrix(targetName: str):
 
             while True:
                 print(SHOW_CURSOR)
-                clearAndShowTitle()
+                _clearAndShowTitle(targetName)
                 print(drawMatrix(matrixRows))
-                value = input(EXIT_CONTROLS + f"\nValor de ({i+1}, {j+1}): ")
+                value = input(_EXIT_CONTROLS + f"\nValor de ({i+1}, {j+1}): ")
                 if value.lower() == "exit":
                     return
-                if isValidFloat(value):
+                if isFloatValid(value):
                     matrixRows[i][j] = float(value)
                     break
                 else:
@@ -50,15 +72,13 @@ def readManualMatrix(targetName: str):
                     sleep(3)
 
     print(SHOW_CURSOR)
-    clearAndShowTitle()
+    _clearAndShowTitle(targetName)
 
     matrix = Matrix(matrixRows)
-    print(matrix)
+    choice = _confirmMatrix(matrix)
 
-    choice = input(EXIT_CONTROLS + " | ENTER para confirmar\n")
-    print(HIDE_CURSOR)
     if choice == "exit":
-        return
+        return None
     else:
         return matrix
 

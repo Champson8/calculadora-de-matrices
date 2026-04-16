@@ -1,7 +1,7 @@
 from matrix import Matrix
 
 
-def areValidDimensions(numRows: str | int, numCols: str | int):
+def areDimensionsValid(numRows: str | int, numCols: str | int):
     try:
         numRows = int(numRows)
         numCols = int(numCols)
@@ -11,7 +11,7 @@ def areValidDimensions(numRows: str | int, numCols: str | int):
         return False
 
 
-def isValidFloat(value: str | float | int):
+def isFloatValid(value: str | float | int):
     try:
         _ = float(value)
         return True
