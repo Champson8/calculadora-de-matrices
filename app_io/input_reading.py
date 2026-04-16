@@ -1,7 +1,7 @@
 from pathlib import Path
 from time import sleep
 from matrix import Matrix
-from constants import HIDE_CURSOR, SHOW_CURSOR
+from constants import HIDE_CURSOR, SHOW_CURSOR, EXIT_CONTROLS
 from utils import getUserAction, clearConsole, printTitle, drawMatrix
 from .input_validation import areDimensionsValid, isFloatValid
 
@@ -31,17 +31,15 @@ def _parseLinesToMatrix(lines: list[str]):
 
 
 def readManualMatrix(title: str, numRows: int = None, numCols: int = None):
-    EXIT_CONTROLS = '\n* "exit" para regresar'
-
-    isValidInput = numRows and numCols
-    while not isValidInput:
+    isInputValid = numRows and numCols
+    while not isInputValid:
         print(SHOW_CURSOR)
         _clearAndShowTitle(title)
 
         rows = input("Número de filas: ")
         cols = input("Número de columnas: ")
-        isValidInput = areDimensionsValid(rows, cols)
-        if not isValidInput:
+        isInputValid = areDimensionsValid(rows, cols)
+        if not isInputValid:
             print("\nMatriz inválida. Intente de nuevo.")
             print(HIDE_CURSOR)
             sleep(3)
@@ -58,11 +56,11 @@ def readManualMatrix(title: str, numRows: int = None, numCols: int = None):
             while True:
                 print(SHOW_CURSOR)
                 _clearAndShowTitle(title)
-                print(drawMatrix(matrixRows))
-                value = input(EXIT_CONTROLS + f"\nValor de ({i+1}, {j+1}): ")
+                print(drawMatrix(matrixRows), "\n" + EXIT_CONTROLS, sep="\n")
+                value = input(f"Valor de ({i+1}, {j+1}): ")
                 if value.lower() == "exit":
                     print(HIDE_CURSOR)
-                    return
+                    return None
                 if isFloatValid(value):
                     matrixRows[i][j] = float(value)
                     break

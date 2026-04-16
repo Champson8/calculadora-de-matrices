@@ -68,7 +68,7 @@ def displayInteractiveMenu(title: str, options: list | tuple):
         printTitle(title)
 
         for i, option in enumerate(options):
-            print(f" > [ {option} ] < " if i == selected else option)
+            print(f" > [ {option} ] < " if i == selected else f"     {option}")
 
         print(MAIN_CONTROLS)
 
