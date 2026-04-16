@@ -11,12 +11,14 @@ def printTitle(title: str):
 
 
 def drawMatrix(rows):
+    formatValue = lambda value: value if isinstance(value, str) else f"{value:g}"
     columnStrWidths = [
-        max(len(f"{x:g}") for x in column) for column in list(map(list, zip(*rows)))
+        max(len(formatValue(x)) for x in column)
+        for column in list(map(list, zip(*rows)))
     ]
     maxColWidth = max(columnStrWidths)
     rowToStr = lambda rowIdx: " ".join(
-        map(lambda x: f"{x:g}".rjust(maxColWidth), rows[rowIdx])
+        map(lambda x: formatValue(x).rjust(maxColWidth), rows[rowIdx])
     )
     if len(rows) == 1:
         drawing = f"[ {rowToStr(0)} ]"
