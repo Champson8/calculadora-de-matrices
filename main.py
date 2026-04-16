@@ -2,11 +2,12 @@ from dataclasses import dataclass
 from msvcrt import getch
 from matrix import Matrix
 from utils import clearConsole, printTitle
+from app_io.input_reading import readManualMatrix, readFileMatrix
 from constants import CONTROLS, HIDE_CURSOR
 
 
 @dataclass
-class AppState:
+class App:
     matrixA: Matrix = None
     matrixB: Matrix = None
     currentMenu: str = "main"
@@ -62,12 +63,12 @@ def displayInteractiveMenu(title: str, options: list | tuple):
 
 
 def main():
-    state = AppState()
+    app = App()
     print(HIDE_CURSOR)
-    while state.isRunning:
+    while app.isRunning:
         clearConsole()
 
-        match state.currentMenu:
+        match app.currentMenu:
 
             case "main":
                 options = ["Ingresar Matriz"]
@@ -82,49 +83,63 @@ def main():
                     "Restar Matrices",
                     "Multiplicar Matrices",
                 ]
-                if state.numMatrices >= 1:
+                if app.numMatrices >= 1:
                     options += unaryOptions
-                if state.numMatrices == 2:
+                if app.numMatrices == 2:
                     options += binaryOptions
                 choice = displayInteractiveMenu("calculadora de matrices", options)
                 match choice:
                     case None:
-                        state.isRunning = False
+                        app.isRunning = False
                     case 0 | 1 | 2 | 3 | 4:
-                        state.currentMenu = "select_unary_target"
+                        app.currentMenu = "select_unary_target"
                         match choice:
                             case 0:
-                                state.nextMenu = "register"
+                                app.nextMenu = "register"
                             case 1:
-                                state.nextMenu = "multiply_scalar"
+                                app.nextMenu = "multiply_scalar"
                             case 2:
-                                state.nextMenu = "invert"
+                                app.nextMenu = "invert"
                             case 3:
-                                state.nextMenu = "transpose"
+                                app.nextMenu = "transpose"
                             case 4:
-                                state.nextMenu = "solve"
+                                app.nextMenu = "solve"
                     case 5:
-                        state.currentMenu = "add"
+                        app.currentMenu = "add"
                     case 6:
-                        state.currentMenu = "subtract"
+                        app.currentMenu = "subtract"
                     case 7:
-                        state.currentMenu = "multiply_matrices"
+                        app.currentMenu = "multiply_matrices"
 
             case "select_unary_target":
                 options = ["Matriz A", "Matriz B"]
                 choice = displayInteractiveMenu("seleccionar matriz", options)
-                state.currentMenu = state.nextMenu
+                app.currentMenu = app.nextMenu
                 match choice:
                     case None:
-                        state.currentMenu = "main"
+                        app.currentMenu = "main"
                     case 0:
-                        state.activeTarget = "A"
+                        app.activeTarget = "A"
                     case 1:
-                        state.activeTarget = "B"
-                state.nextMenu = None
+                        app.activeTarget = "B"
+                app.nextMenu = None
 
             case "register":
-                pass
+                options = ["Ingresar Manualmente", "Leer Archivo (matrix.txt)"]
+                choice = displayInteractiveMenu("método de lectura de matriz", options)
+                match choice:
+                    case None:
+                        app.currentMenu = "main"
+                    case 0:
+                        matrix = readManualMatrix(app.activeTarget)
+                        if matrix is not None:
+                            if app.activeTarget == "A":
+                                app.matrixA = matrix
+                            else:
+                                app.matrixB = matrix
+                    case 1:
+                        matrix = readFileMatrix(app.activeTarget)
+                app.currentMenu = "main"
 
 
 if __name__ == "__main__":
