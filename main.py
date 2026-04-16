@@ -34,6 +34,30 @@ class App:
         matrix = {"A": self.matrixA, "B": self.matrixB}[targetName]
         return f"Matriz {targetName}:\n{str(matrix) if matrix is not None else '[]'}\n"
 
+    def printMatrixOperation(self, result: Matrix, opStr: str):
+        if self.activeTargetName is not None:
+            matrixDrawing = self.drawMatrixInMenu(self.activeTargetName)
+        else:
+            matrixDrawing = (
+                f"{self.drawMatrixInMenu("A")}\n{self.drawMatrixInMenu("B")}"
+            )
+        print(
+            matrixDrawing,
+            opStr + ":",
+            str(result),
+            AFTER_OP_CONTROLS,
+            sep="\n",
+        )
+
+    def tryOperation(self, operation: function):
+        try:
+            return operation()
+        except Exception as error:
+            print(error)
+            sleep(3)
+            self.currentMenu = "main"
+            return None
+
 
 def displayInteractiveMenu(title: str, options: list | tuple):
     numOptions = len(options)
@@ -159,13 +183,7 @@ def main():
                 result = app.activeMatrix * scalar
                 clearConsole()
                 printTitle(title)
-                print(
-                    app.drawMatrixInMenu(app.activeTargetName),
-                    f"{app.activeTargetName} * {scalar}:",
-                    str(result),
-                    "\n* ESC para regresar | ENTER para guardar",
-                    sep="\n",
-                )
+                app.printMatrixOperation(result, f"{app.activeTargetName} * {scalar}")
                 action = getUserAction()
                 if action == "ESCAPE":
                     app.currentMenu = "main"
