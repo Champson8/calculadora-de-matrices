@@ -1,8 +1,7 @@
 from dataclasses import dataclass
-from msvcrt import getch
 from matrix import Matrix
-from utils import clearConsole, printTitle
-from app_io.input_reading import readManualMatrix, readFileMatrix
+from utils import getUserAction, clearConsole, printTitle
+from app_io.input_reading import readManualMatrix, readFileMatrix, readScalar
 from constants import CONTROLS, HIDE_CURSOR, SHOW_CURSOR
 
 
@@ -18,22 +17,6 @@ class App:
     @property
     def numMatrices(self):
         return 2 - [self.matrixA, self.matrixB].count(None)
-
-
-def getUserAction():
-    inp = getch().lower()
-    if inp in [b"\x00", b"\xe0"]:
-        inp = getch()
-
-    match inp:
-        case b"w" | b"H":
-            return "UP"
-        case b"s" | b"P":
-            return "DOWN"
-        case b"\r":
-            return "ENTER"
-        case b"\x1b":
-            return "ESCAPE"
 
 
 def displayInteractiveMenu(title: str, options: list | tuple):

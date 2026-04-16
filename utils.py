@@ -1,4 +1,21 @@
+from msvcrt import getch
 from sys import stdout
+
+
+def getUserAction():
+    inp = getch().lower()
+    if inp in [b"\x00", b"\xe0"]:
+        inp = getch()
+
+    match inp:
+        case b"w" | b"H":
+            return "UP"
+        case b"s" | b"P":
+            return "DOWN"
+        case b"\r":
+            return "ENTER"
+        case b"\x1b":
+            return "ESCAPE"
 
 
 def clearConsole():
