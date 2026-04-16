@@ -45,6 +45,11 @@ def displayInteractiveMenu(title: str, options: list | tuple):
                 return None
 
 
+def drawMatrixInMenu(app, targetName: str):
+    matrix = {"A": app.matrixA, "B": app.matrixB}[targetName]
+    return f"Matriz {targetName}:\n{str(matrix) if matrix is not None else '[]'}\n"
+
+
 def main():
     app = App()
     print(HIDE_CURSOR)
@@ -130,18 +135,10 @@ def main():
                 app.currentMenu = "main"
 
             case "check_matrices":
-                printTitle("matrices registradas")
-                drawing = [
-                    "Matriz A:",
-                    (str(app.matrixA) if app.matrixA is not None else "[]") + "\n",
-                ]
-                drawing += [
-                    "Matriz B:",
-                    (str(app.matrixB) if app.matrixB is not None else "[]") + "\n",
-                ]
-                drawing = "\n".join(drawing)
-                print(drawing, "* ESC/ENTER para regresar", sep="\n")
-                if getUserAction() in ["ESCAPE", "ENTER"]:
+                printTitle("matrices")
+                drawing = f"{drawMatrixInMenu(app, 'A')}\n{drawMatrixInMenu(app, 'B')}"
+                print(drawing, "* ENTER/ESC para regresar", sep="\n")
+                if getUserAction() in ["ENTER", "ESCAPE"]:
                     app.currentMenu = "main"
 
             case "multiply_scalar":
