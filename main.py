@@ -71,7 +71,7 @@ def main():
         match app.currentMenu:
 
             case "main":
-                options = ["Ingresar Matriz"]
+                options = ["Ingresar Matriz", "Ver Matrices"]
                 unaryOptions = [
                     "Multiplicar Matriz por Escalar",
                     "Invertir Matriz",
@@ -91,24 +91,26 @@ def main():
                 match choice:
                     case None:
                         app.isRunning = False
-                    case 0 | 1 | 2 | 3 | 4:
+                    case 1:
+                        app.currentMenu = "check_matrices"
+                    case 0 | 2 | 3 | 4 | 5:
                         app.currentMenu = "select_unary_target"
                         match choice:
                             case 0:
                                 app.nextMenu = "register"
-                            case 1:
-                                app.nextMenu = "multiply_scalar"
                             case 2:
-                                app.nextMenu = "invert"
+                                app.nextMenu = "multiply_scalar"
                             case 3:
-                                app.nextMenu = "transpose"
+                                app.nextMenu = "invert"
                             case 4:
+                                app.nextMenu = "transpose"
+                            case 5:
                                 app.nextMenu = "solve"
-                    case 5:
-                        app.currentMenu = "add"
                     case 6:
-                        app.currentMenu = "subtract"
+                        app.currentMenu = "add"
                     case 7:
+                        app.currentMenu = "subtract"
+                    case 8:
                         app.currentMenu = "multiply_matrices"
 
             case "select_unary_target":
@@ -127,19 +129,35 @@ def main():
             case "register":
                 options = ["Ingresar Manualmente", "Leer Archivo (matrix.txt)"]
                 choice = displayInteractiveMenu("método de lectura de matriz", options)
-                match choice:
-                    case None:
-                        app.currentMenu = "main"
-                    case 0:
-                        matrix = readManualMatrix(app.activeTarget)
-                        if matrix is not None:
-                            if app.activeTarget == "A":
-                                app.matrixA = matrix
-                            else:
-                                app.matrixB = matrix
-                    case 1:
-                        matrix = readFileMatrix(app.activeTarget)
+                if choice == None:
+                    app.currentMenu = "main"
+                else:
+                    matrix = (
+                        readManualMatrix(app.activeTarget)
+                        if choice == 0
+                        else readFileMatrix(app.activeTarget)
+                    )
+                    if matrix is not None:
+                        if app.activeTarget == "A":
+                            app.matrixA = matrix
+                        else:
+                            app.matrixB = matrix
                 app.currentMenu = "main"
+
+            case "check_matrices":
+                printTitle("matrices registradas")
+                drawing = [
+                    "Matriz A:",
+                    (str(app.matrixA) if app.matrixA is not None else "[]") + "\n",
+                ]
+                drawing += [
+                    "Matriz B:",
+                    (str(app.matrixB) if app.matrixB is not None else "[]") + "\n",
+                ]
+                drawing = "\n".join(drawing)
+                print(drawing, "* ESC/ENTER para regresar", sep="\n")
+                if getUserAction() in ["ESCAPE", "ENTER"]:
+                    app.currentMenu = "main"
 
 
 if __name__ == "__main__":
