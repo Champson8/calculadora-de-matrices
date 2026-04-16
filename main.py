@@ -10,13 +10,24 @@ class App:
     matrixA: Matrix = None
     matrixB: Matrix = None
     currentMenu: str = "main"
-    activeTarget: str = None
+    activeTargetName: str = None
     nextMenu: str = None
     isRunning: bool = True
 
     @property
     def numMatrices(self):
         return 2 - [self.matrixA, self.matrixB].count(None)
+
+    @property
+    def activeMatrix(self):
+        if self.activeTargetName is None:
+            return None
+        else:
+            return {"A": self.matrixA, "B": self.matrixB}[self.activeTargetName]
+
+    def drawMatrixInMenu(self, targetName: str):
+        matrix = {"A": self.matrixA, "B": self.matrixB}[targetName]
+        return f"Matriz {targetName}:\n{str(matrix) if matrix is not None else '[]'}\n"
 
 
 def displayInteractiveMenu(title: str, options: list | tuple):
@@ -43,11 +54,6 @@ def displayInteractiveMenu(title: str, options: list | tuple):
                 return selected
             case "ESCAPE":
                 return None
-
-
-def drawMatrixInMenu(app, targetName: str):
-    matrix = {"A": app.matrixA, "B": app.matrixB}[targetName]
-    return f"Matriz {targetName}:\n{str(matrix) if matrix is not None else '[]'}\n"
 
 
 def main():
@@ -112,12 +118,12 @@ def main():
                         choice = {0: "A", 1: "B"}[choice]
                 elif app.numMatrices == 1:
                     choice = "A" if app.matrixA is not None else "B"
-                app.activeTarget = choice
+                app.activeTargetName = choice
                 app.currentMenu = app.nextMenu
                 app.nextMenu = None
 
             case "register":
-                title = f"ingresar matriz {app.activeTarget}"
+                title = f"ingresar matriz {app.activeTargetName}"
                 options = ["Ingresar Manualmente", "Leer Archivo (matrix.txt)"]
                 choice = displayInteractiveMenu("método de lectura de matriz", options)
                 if choice == None:
@@ -129,7 +135,7 @@ def main():
                         else readFileMatrix(title)
                     )
                     if matrix is not None:
-                        if app.activeTarget == "A":
+                        if app.activeTargetName == "A":
                             app.matrixA = matrix
                         else:
                             app.matrixB = matrix
@@ -137,13 +143,29 @@ def main():
 
             case "check_matrices":
                 printTitle("matrices")
-                drawing = f"{drawMatrixInMenu(app, 'A')}\n{drawMatrixInMenu(app, 'B')}"
-                print(drawing, "* ENTER/ESC para regresar", sep="\n")
-                if getUserAction() in ["ENTER", "ESCAPE"]:
+                drawing = f"{app.drawMatrixInMenu("A")}\n{app.drawMatrixInMenu("B")}"
+                print(drawing, "* ESC para regresar", sep="\n")
+                if getUserAction() == "ESCAPE":
                     app.currentMenu = "main"
 
             case "multiply_scalar":
-                pass
+                title = "multiplicación por escalar"
+                scalar = readScalar(title)
+                result = app.activeMatrix * scalar
+                clearConsole()
+                printTitle(title)
+                print(
+                    app.drawMatrixInMenu(app.activeTargetName),
+                    f"{app.activeTargetName} * {scalar}:",
+                    str(result),
+                    "\n* ESC para regresar | ENTER para guardar",
+                    sep="\n",
+                )
+                action = getUserAction()
+                if action == "ESCAPE":
+                    app.currentMenu = "main"
+                else:
+                    pass
 
             case "invert":
                 pass

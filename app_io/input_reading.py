@@ -105,3 +105,16 @@ def readFileMatrix(title: str):
         print(HIDE_CURSOR)
         sleep(3)
         return None
+
+
+def readScalar(title: str):
+    while True:
+        print(SHOW_CURSOR)
+        _clearAndShowTitle(title)
+        value = input("Escalar: ")
+        if isFloatValid(value):
+            return float(value)
+        else:
+            print("\nEscalar inválido. Intente de nuevo.")
+            print(HIDE_CURSOR)
+            sleep(3)
