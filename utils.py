@@ -1,5 +1,7 @@
+from time import sleep
 from msvcrt import getch
 from sys import stdout
+from constants import HIDE_CURSOR
 
 
 def getUserAction():
@@ -25,6 +27,12 @@ def clearConsole():
 
 def printTitle(title: str):
     print(f"=== {title.upper()} ===\n")
+
+
+def showError(message: str):
+    print(message)
+    print(HIDE_CURSOR)
+    sleep(3)
 
 
 def drawMatrix(rows):

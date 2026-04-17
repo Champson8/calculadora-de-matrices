@@ -2,7 +2,7 @@ from pathlib import Path
 from time import sleep
 from matrix import Matrix
 from constants import HIDE_CURSOR, SHOW_CURSOR, EXIT_CONTROLS
-from utils import getUserAction, clearConsole, printTitle, drawMatrix
+from utils import getUserAction, clearConsole, printTitle, drawMatrix, showError
 from .input_validation import areDimensionsValid, isFloatValid
 
 
@@ -40,9 +40,7 @@ def readManualMatrix(title: str, numRows: int = None, numCols: int = None):
         cols = input("Número de columnas: ")
         isInputValid = areDimensionsValid(rows, cols)
         if not isInputValid:
-            print("\nMatriz inválida. Intente de nuevo.")
-            print(HIDE_CURSOR)
-            sleep(3)
+            showError("\nMatriz inválida. Intente de nuevo.")
 
     _clearAndShowTitle(title)
 
@@ -91,6 +89,9 @@ def readFileMatrix(title: str):
     if file.is_file():
         with open(file.resolve()) as readFile:
             matrix = _parseLinesToMatrix(readFile.readlines())
+    else:
+        showError("Archivo no encontrado. Compruebe el directorio.")
+        return None
 
     if matrix is not None:
         action = _confirmMatrix(matrix)
@@ -99,9 +100,7 @@ def readFileMatrix(title: str):
         elif action == "ENTER":
             return matrix
     else:
-        print("Matriz inválida. Compruebe el archivo.")
-        print(HIDE_CURSOR)
-        sleep(3)
+        showError("Matriz inválida. Compruebe el archivo.")
         return None
 
 
@@ -113,6 +112,4 @@ def readScalar(title: str):
         if isFloatValid(value):
             return float(value)
         else:
-            print("\nEscalar inválido. Intente de nuevo.")
-            print(HIDE_CURSOR)
-            sleep(3)
+            showError("\nEscalar inválido. Intente de nuevo.")
