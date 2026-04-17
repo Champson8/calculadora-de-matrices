@@ -12,12 +12,13 @@ def writeMatrixToFile(matrix: Matrix):
         printTitle("guardar matriz")
 
         print(EXIT_CONTROLS)
-        path = Path(input("Directorio del archivo .txt: ")).resolve()
+        path = input("Directorio del archivo .txt: ")
 
         if path == "exit":
             print(HIDE_CURSOR)
             return None
-        elif path.exists():
+        path = Path(path).resolve()
+        if path.exists():
             while True:
                 print(f"\n{path.name} ya existe.")
                 print("* ENTER para sobreescribir | ESC para regresar", HIDE_CURSOR)
