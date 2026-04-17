@@ -15,8 +15,14 @@ AFTER_OP_CONTROLS = "\n* ENTER para guardar | ESC para regresar"
 class App:
     matrixA: Matrix = None
     matrixB: Matrix = None
-    currentMenu: str = "main"
+
     activeTargetName: str = None
+    activeScalar: float = None
+    activeConstants: Matrix = None
+    activeSubChoice: int = None
+    activeMultChoice: int = None
+
+    currentMenu: str = "main"
     nextMenu: str = None
     isRunning: bool = True
 
@@ -30,6 +36,9 @@ class App:
             return None
         else:
             return {"A": self.matrixA, "B": self.matrixB}[self.activeTargetName]
+        
+    def resetActives(self):
+        self.activeTargetName = self.activeScalar = self.activeConstants = self.activeSubChoice = self.activeMultChoice = None
 
     def drawMatrixInMenu(self, targetName: str):
         matrix = {"A": self.matrixA, "B": self.matrixB}[targetName]
@@ -60,14 +69,18 @@ class App:
             return None
 
     def promptMatrixWrite(self, matrix: Matrix):
+        print(HIDE_CURSOR)
         action = getUserAction()
         if action == "ESCAPE":
             self.currentMenu = "main"
-        else:
+            self.resetActives()
+            return False
+        elif action == "ENTER":
             path = writeMatrixToFile(matrix)
             if path is None:
                 return False
             else:
+                self.resetActives()
                 print(f"Matriz guardada en {path}")
                 sleep(3)
                 self.currentMenu = "main"
@@ -168,7 +181,7 @@ def main():
 
             case "register":
                 title = f"ingresar matriz {app.activeTargetName}"
-                options = ["Ingresar Manualmente", "Leer Archivo (matrix.txt)"]
+                options = ["Ingresar Manualmente", "Leer Archivo (resources/matrices/matrix.txt)"]
                 choice = displayInteractiveMenu("método de lectura de matriz", options)
                 if choice == None:
                     app.currentMenu = "main"
@@ -195,13 +208,13 @@ def main():
 
             case "multiply_scalar":
                 title = "multiplicación por escalar"
-                scalar = readScalar(title)
+                scalar = app.activeScalar or readScalar(title)
+                app.activeScalar = scalar
                 result = app.activeMatrix * scalar
                 clearConsole()
                 printTitle(title)
                 app.printMatrixOperation(result, f"{app.activeTargetName} * {scalar}")
                 app.promptMatrixWrite(result)
-                app.activeTargetName = None
 
             case "invert":
                 printTitle("inversión")
@@ -209,26 +222,26 @@ def main():
                 if result is None:
                     continue
                 app.printMatrixOperation(result, f"{app.activeTargetName}⁻¹")
-                success = app.promptMatrixWrite(result)
-                if not success:
-                    continue
-                app.activeTargetName = None
+                app.promptMatrixWrite(result)
 
             case "transpose":
                 printTitle("transposición")
                 result = app.activeMatrix.transpose()
                 app.printMatrixOperation(result, f"{app.activeTargetName}ᵀ")
                 app.promptMatrixWrite(result)
-                app.activeTargetName = None
 
             case "solve":
                 title = "resolver sistema de ecuaciones lineales"
-                bMatrix = readManualMatrix(
+                bMatrix = app.activeConstants or readManualMatrix(
                     "ingresar matriz de términos independientes",
                     app.activeMatrix.numRows,
                     1,
                 )
-                if bMatrix is not None:
+                if bMatrix is None:
+                    app.currentMenu = "main"
+                    app.resetActives()
+                else:
+                    app.activeConstants = Matrix(bMatrix.rows)
                     clearConsole()
                     printTitle(title)
                     result = app.tryOperation(lambda: app.activeMatrix.solve(bMatrix))
@@ -243,7 +256,6 @@ def main():
                             sep="\n",
                         )
                         app.promptMatrixWrite(result)
-                app.activeTargetName = None
 
             case "add":
                 printTitle("suma")
@@ -256,9 +268,11 @@ def main():
             case "subtract":
                 title = "resta"
                 options = ["A - B", "B - A"]
-                choice = displayInteractiveMenu("orden de operación", options)
+                choice = displayInteractiveMenu("orden de operación", options) if app.activeSubChoice is None else app.activeSubChoice
+                app.activeSubChoice = choice
                 if choice is None:
                     app.currentMenu = "main"
+                    app.resetActives()
                     continue
                 elif choice == 0:
                     operation = lambda: app.matrixA - app.matrixB
@@ -275,9 +289,11 @@ def main():
             case "multiply_matrices":
                 title = "multiplicación de matrices"
                 options = ["A * B", "B * A"]
-                choice = displayInteractiveMenu("orden de operación", options)
+                choice = displayInteractiveMenu("orden de operación", options) if app.activeMultChoice is None else app.activeMultChoice
+                app.activeMultChoice = choice
                 if choice is None:
                     app.currentMenu = "main"
+                    app.resetActives()
                     continue
                 elif choice == 0:
                     operation = lambda: app.matrixA * app.matrixB
