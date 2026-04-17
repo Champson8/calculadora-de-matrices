@@ -11,11 +11,21 @@ def _clearAndShowTitle(title: str):
     printTitle(title)
 
 
-def _confirmMatrix(matrix: Matrix):
-    print(
-        matrix, "\n* ENTER para confirmar | ESC para regresar\n", HIDE_CURSOR, sep="\n"
-    )
-    return getUserAction()
+def _confirmMatrix(title: str, matrix: Matrix):
+    while True:
+        print(SHOW_CURSOR)
+        _clearAndShowTitle(title)
+        print(
+            matrix,
+            "\n* ENTER para confirmar | ESC para regresar\n",
+            HIDE_CURSOR,
+            sep="\n",
+        )
+        action = getUserAction()
+        if action == "ESCAPE":
+            return None
+        elif action == "ENTER":
+            return matrix
 
 
 def _parseLinesToMatrix(lines: list[str]):
@@ -63,26 +73,13 @@ def readManualMatrix(title: str, numRows: int = None, numCols: int = None):
                     matrixRows[i][j] = float(value)
                     break
                 else:
-                    print("\nValor inválido. Intente de nuevo.")
-                    print(HIDE_CURSOR)
-                    sleep(3)
-
-    print(SHOW_CURSOR)
-    _clearAndShowTitle(title)
+                    showError("\nValor inválido. Intente de nuevo.")
 
     matrix = Matrix(matrixRows)
-    action = _confirmMatrix(matrix)
-
-    if action == "ESCAPE":
-        return None
-    elif action == "ENTER":
-        return matrix
+    return _confirmMatrix(title, matrix)
 
 
 def readFileMatrix(title: str):
-    print(SHOW_CURSOR)
-    _clearAndShowTitle(title)
-
     file = Path(__file__).parent / ".." / "resources" / "matrices" / "matrix.txt"
     matrix = None
 
@@ -94,11 +91,7 @@ def readFileMatrix(title: str):
         return None
 
     if matrix is not None:
-        action = _confirmMatrix(matrix)
-        if action == "ESCAPE":
-            return None
-        elif action == "ENTER":
-            return matrix
+        return _confirmMatrix(title, matrix)
     else:
         showError("Matriz inválida. Compruebe el archivo.")
         return None
