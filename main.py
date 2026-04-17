@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from time import sleep
 from matrix import Matrix
-from utils import getUserAction, clearConsole, printTitle
+from utils import getUserAction, clearConsole, printTitle, showError
 from app_io.input_reading import readManualMatrix, readFileMatrix, readScalar
 from app_io.output_writing import writeMatrixToFile
 from constants import HIDE_CURSOR, SHOW_CURSOR
@@ -63,8 +63,7 @@ class App:
         try:
             return operation()
         except Exception as error:
-            print(error)
-            sleep(3)
+            showError(error)
             self.currentMenu = "main"
             return None
 
@@ -232,6 +231,11 @@ def main():
 
             case "solve":
                 title = "resolver sistema de ecuaciones lineales"
+                if app.activeMatrix.numRows == 1:
+                    printTitle(title)
+                    showError("La matriz tiene infinitas soluciones.")
+                    app.currentMenu = "main"
+                    continue
                 bMatrix = app.activeConstants or readManualMatrix(
                     "ingresar matriz de términos independientes",
                     app.activeMatrix.numRows,
